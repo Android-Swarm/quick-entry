@@ -19,7 +19,7 @@ import com.google.android.material.snackbar.Snackbar
 import com.google.mlkit.vision.barcode.Barcode
 import com.zetzaus.quickentry.R
 import com.zetzaus.quickentry.camera.QRAnalyzer
-import com.zetzaus.quickentry.extensions.isSafeEntryURL
+import com.zetzaus.quickentry.extensions.isSafeEntryCodeURL
 import kotlinx.android.synthetic.main.fragment_scan.*
 import java.util.concurrent.ExecutorService
 import java.util.concurrent.Executors
@@ -100,7 +100,7 @@ class ScanFragment : Fragment() {
             val onSuccess: (List<Barcode>) -> Unit = { barcodes ->
                 val safeEntryBarcode = barcodes
                     .filter { it.valueType == Barcode.TYPE_URL }
-                    .firstOrNull { it.url?.url?.isSafeEntryURL() ?: false }
+                    .firstOrNull { it.url?.url?.isSafeEntryCodeURL() ?: false }
 
                 safeEntryBarcode?.let { barcode ->
                     barcode.url?.let { urlBookmark ->
