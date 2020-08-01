@@ -14,6 +14,7 @@ import androidx.camera.core.Preview
 import androidx.camera.lifecycle.ProcessCameraProvider
 import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
+import androidx.navigation.findNavController
 import com.google.android.material.snackbar.Snackbar
 import com.google.mlkit.vision.barcode.Barcode
 import com.zetzaus.quickentry.R
@@ -24,7 +25,6 @@ import java.util.concurrent.ExecutorService
 import java.util.concurrent.Executors
 
 class ScanFragment : Fragment() {
-    private val TAG = ScanFragment::class.simpleName
 
     private var preview: Preview? = null
     private var imageAnalysis: ImageAnalysis? = null
@@ -76,13 +76,13 @@ class ScanFragment : Fragment() {
 
     private fun allPermissionsGranted() = PERMISSIONS.all {
         ContextCompat.checkSelfPermission(
-            this.context!!,
+            this.requireContext(),
             it
         ) == PackageManager.PERMISSION_GRANTED
     }
 
     private fun startCamera() {
-        val cameraProviderFuture = ProcessCameraProvider.getInstance(this.context!!)
+        val cameraProviderFuture = ProcessCameraProvider.getInstance(this.requireContext())
 
         cameraProviderFuture.addListener(Runnable {
             val cameraProvider = cameraProviderFuture.get()
@@ -103,8 +103,13 @@ class ScanFragment : Fragment() {
                     .firstOrNull { it.url?.url?.isSafeEntryURL() ?: false }
 
                 safeEntryBarcode?.let { barcode ->
-                    barcode.url?.let {
-                        Log.d(TAG, "Found SafeEntry URL: ${it.title} ${it.url}")
+                    barcode.url?.let { urlBookmark ->
+                        urlBookmark.url?.let { url ->
+                            Log.d(TAG, "Found SafeEntry URL: $url")
+
+                            val action = ScanFragmentDirections.actionScanFragmentToWebFragment(url)
+                            viewFinder?.findNavController()?.navigate(action)
+                        }
                     }
                 }
             }
@@ -138,6 +143,7 @@ class ScanFragment : Fragment() {
 
     companion object {
         const val REQUEST_PERMISSION_CODE = 1024
+        val TAG = ScanFragment::class.simpleName
         val PERMISSIONS = arrayOf(Manifest.permission.CAMERA)
     }
 }
