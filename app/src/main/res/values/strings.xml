@@ -2,6 +2,5 @@
     <string name="app_name">Quick Entry</string>
 
     <string name="snack_bar_camera_permission_denied">Scanning QR code feature needs camera permission 😢</string>
-    <!-- TODO: Remove or change this placeholder text -->
-    <string name="hello_blank_fragment">Hello blank fragment</string>
+    <string name="snack_bar_location_permission_denied">Please enable location permission for better experience</string>
 </resources>

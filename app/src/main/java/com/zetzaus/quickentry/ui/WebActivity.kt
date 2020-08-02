@@ -23,11 +23,15 @@ class WebActivity : AppCompatActivity() {
     override fun onBackPressed() {
         supportFragmentManager.findFragmentById(R.id.fragmentContainer).run {
             if (!(this as WebFragment).onBackPressed()) {
-                Log.d("WebActivity", "Calling the usual back behavior")
+                Log.d(TAG, "Calling the usual back behavior")
                 super.onBackPressed()
             } else {
-                Log.d("WebActivity", "Calling back on the web view")
+                Log.d(TAG, "Calling back on the web view")
             }
         }
+    }
+
+    companion object {
+        val TAG = WebActivity::class.simpleName
     }
 }
