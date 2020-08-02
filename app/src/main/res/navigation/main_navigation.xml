@@ -11,8 +11,8 @@
         android:label="fragment_scan"
         tools:layout="@layout/fragment_scan">
         <action
-            android:id="@+id/action_scanFragment_to_webFragment"
-            app:destination="@id/webFragment"
+            android:id="@+id/action_scanFragment_to_webActivity"
+            app:destination="@id/webActivity"
             app:popUpTo="@id/scanFragment"
             app:popUpToInclusive="true" />
     </fragment>
@@ -25,13 +25,13 @@
             android:id="@+id/action_mainFragment_to_scanFragment"
             app:destination="@id/scanFragment" />
     </fragment>
-    <fragment
-        android:id="@+id/webFragment"
-        android:name="com.zetzaus.quickentry.ui.WebFragment"
-        android:label="fragment_web"
-        tools:layout="@layout/fragment_web">
+    <activity
+        android:id="@+id/webActivity"
+        android:name="com.zetzaus.quickentry.ui.WebActivity"
+        android:label="activity_web"
+        tools:layout="@layout/activity_web" >
         <argument
             android:name="url"
             app:argType="string" />
-    </fragment>
+    </activity>
 </navigation>

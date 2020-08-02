@@ -10,8 +10,6 @@ class WebFragmentViewModel : ViewModel() {
         MutableLiveData(it)
     }
 
-    lateinit var url: String
-
     fun updateProgressIndicator(newProgress: Int) {
         if (newProgress == 100) {
             _progressIndicatorVisibility.postValue(false)

@@ -107,7 +107,7 @@ class ScanFragment : Fragment() {
                         urlBookmark.url?.let { url ->
                             Log.d(TAG, "Found SafeEntry URL: $url")
 
-                            val action = ScanFragmentDirections.actionScanFragmentToWebFragment(url)
+                            val action = ScanFragmentDirections.actionScanFragmentToWebActivity(url)
                             viewFinder?.findNavController()?.navigate(action)
                         }
                     }
@@ -135,7 +135,7 @@ class ScanFragment : Fragment() {
                 val surfaceProvider = viewFinder.createSurfaceProvider()
                 preview?.setSurfaceProvider(surfaceProvider)
             } catch (e: Exception) {
-
+                Log.e(TAG, "Caught exception when starting camera", e)
             }
         }, ContextCompat.getMainExecutor(this.activity))
 

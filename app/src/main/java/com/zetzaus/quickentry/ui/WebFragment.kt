@@ -25,26 +25,12 @@ class WebFragment : Fragment() {
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
-        // Inflate the layout for this fragment
-        return inflater.inflate(R.layout.fragment_web, container, false)
-    }
+        val root = inflater.inflate(R.layout.fragment_web, container, false)
 
+        val url = arguments?.getString(URL_KEY)
+        Log.d(TAG, "Received URL: $url")
 
-    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
-        super.onViewCreated(view, savedInstanceState)
-
-        viewModel = ViewModelProvider(this).get(WebFragmentViewModel::class.java)
-        viewModel.url = WebFragmentArgs.fromBundle(requireArguments()).url
-        Log.d(TAG, "Received URL: ${viewModel.url}")
-
-        viewModel.progressIndicatorVisibility.observe(viewLifecycleOwner,
-            Observer<Boolean> { t ->
-                t?.let { visible ->
-                    progressIndicator.visibility = if (visible) View.VISIBLE else View.GONE
-                }
-            })
-
-        webView.apply {
+        root.findViewById<WebView>(R.id.webView).apply {
             @SuppressLint("SetJavaScriptEnabled")
             settings.javaScriptEnabled = true
 
@@ -87,8 +73,22 @@ class WebFragment : Fragment() {
                 }
             }
 
-            loadUrl(viewModel.url)
+            loadUrl(url)
         }
+
+        return root
+    }
+
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        super.onViewCreated(view, savedInstanceState)
+        viewModel = ViewModelProvider(this).get(WebFragmentViewModel::class.java)
+
+        viewModel.progressIndicatorVisibility.observe(viewLifecycleOwner,
+            Observer<Boolean> { t ->
+                t?.let { visible ->
+                    progressIndicator.visibility = if (visible) View.VISIBLE else View.GONE
+                }
+            })
     }
 
     override fun onDestroy() {
@@ -114,6 +114,11 @@ class WebFragment : Fragment() {
 
     companion object {
         val TAG = WebFragment::class.simpleName
+        val URL_KEY = WebFragment::class.qualifiedName + "_URL_KEY"
+
+        fun create(url: String) = WebFragment().apply {
+            arguments = Bundle().apply { putString(URL_KEY, url) }
+        }
     }
 
     private fun handleIntentScheme(web: WebView, url: String): Boolean {
@@ -140,10 +145,10 @@ class WebFragment : Fragment() {
     }
 
     fun onBackPressed() =
-        if (webView.canGoBack()) {
+        if (webView.url.isSafeEntryURL()) {
+            false
+        } else {
             webView.goBack()
             true
-        } else {
-            false
         }
 }
