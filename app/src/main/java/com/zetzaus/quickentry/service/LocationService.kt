@@ -28,8 +28,8 @@ class LocationService : Service() {
         locationClient = FusedLocationProviderClient(this)
 
         locationRequest = LocationRequest().apply {
-            fastestInterval = TimeUnit.SECONDS.toMillis(3)
-            interval = TimeUnit.SECONDS.toMillis(5)
+            fastestInterval = TimeUnit.MILLISECONDS.toMillis(500)
+            interval = TimeUnit.SECONDS.toMillis(1)
             priority = LocationRequest.PRIORITY_HIGH_ACCURACY
         }
 

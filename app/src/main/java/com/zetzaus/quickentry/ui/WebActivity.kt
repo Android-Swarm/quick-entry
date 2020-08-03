@@ -4,6 +4,7 @@ import android.os.Bundle
 import android.util.Log
 import androidx.appcompat.app.AppCompatActivity
 import com.zetzaus.quickentry.R
+import com.zetzaus.quickentry.extensions.TAG
 
 class WebActivity : AppCompatActivity() {
 
@@ -29,9 +30,5 @@ class WebActivity : AppCompatActivity() {
                 Log.d(TAG, "Calling back on the web view")
             }
         }
-    }
-
-    companion object {
-        val TAG = WebActivity::class.simpleName
     }
 }

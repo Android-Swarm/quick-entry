@@ -14,11 +14,14 @@ import androidx.camera.core.Preview
 import androidx.camera.lifecycle.ProcessCameraProvider
 import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
+import androidx.fragment.app.activityViewModels
+import androidx.lifecycle.observe
 import androidx.navigation.findNavController
 import com.google.android.material.snackbar.Snackbar
 import com.google.mlkit.vision.barcode.Barcode
 import com.zetzaus.quickentry.R
 import com.zetzaus.quickentry.camera.QRAnalyzer
+import com.zetzaus.quickentry.extensions.TAG
 import com.zetzaus.quickentry.extensions.isSafeEntryCodeURL
 import kotlinx.android.synthetic.main.fragment_scan.*
 import java.util.concurrent.ExecutorService
@@ -29,6 +32,9 @@ class ScanFragment : Fragment() {
     private var preview: Preview? = null
     private var imageAnalysis: ImageAnalysis? = null
     private var camera: Camera? = null
+
+    private val viewModel by activityViewModels<MainActivityViewModel>()
+    private var lastLocation = viewModel.lastLocation.value
 
     private lateinit var root: View
     private lateinit var cameraExecutor: ExecutorService
@@ -47,6 +53,12 @@ class ScanFragment : Fragment() {
         }
 
         cameraExecutor = Executors.newSingleThreadExecutor()
+
+        viewModel.lastLocation.observe(viewLifecycleOwner) { newLocation ->
+            lastLocation = newLocation
+            Log.d(TAG, "Received location, updating current location.")
+        }
+
 
         return root
     }
@@ -143,7 +155,6 @@ class ScanFragment : Fragment() {
 
     companion object {
         const val REQUEST_PERMISSION_CODE = 1024
-        val TAG = ScanFragment::class.simpleName
         val PERMISSIONS = arrayOf(Manifest.permission.CAMERA)
     }
 }
