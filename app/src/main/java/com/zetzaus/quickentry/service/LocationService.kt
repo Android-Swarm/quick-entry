@@ -28,8 +28,8 @@ class LocationService : Service() {
         locationClient = FusedLocationProviderClient(this)
 
         locationRequest = LocationRequest().apply {
-            fastestInterval = TimeUnit.MILLISECONDS.toMillis(500)
-            interval = TimeUnit.SECONDS.toMillis(1)
+            fastestInterval = TimeUnit.SECONDS.toMillis(1)
+            interval = TimeUnit.SECONDS.toMillis(3)
             priority = LocationRequest.PRIORITY_HIGH_ACCURACY
         }
 
@@ -72,10 +72,15 @@ class LocationService : Service() {
         }
     }
 
-//    fun stopLocationUpdates() {
-//        Log.d(TAG, "Stopping location updates...")
-//        locationClient.removeLocationUpdates(locationCallback)
-//    }
+    override fun onUnbind(intent: Intent?): Boolean {
+        stopLocationUpdates()
+        return super.onUnbind(intent)
+    }
+
+    private fun stopLocationUpdates() {
+        Log.d(TAG, "Stopping location updates...")
+        locationClient.removeLocationUpdates(locationCallback)
+    }
 
     override fun onBind(intent: Intent): IBinder {
         return binder

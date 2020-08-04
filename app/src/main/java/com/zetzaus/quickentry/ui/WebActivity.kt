@@ -13,10 +13,11 @@ class WebActivity : AppCompatActivity() {
         setContentView(R.layout.activity_web)
 
         val url = WebActivityArgs.fromBundle(intent.extras!!).url
+        val fromCode = WebActivityArgs.fromBundle(intent.extras!!).fromCode
 
         if (supportFragmentManager.findFragmentById(R.id.fragmentContainer) == null) {
             supportFragmentManager.beginTransaction()
-                .add(R.id.fragmentContainer, WebFragment.create(url))
+                .add(R.id.fragmentContainer, WebFragment.create(url, fromCode))
                 .commit()
         }
     }

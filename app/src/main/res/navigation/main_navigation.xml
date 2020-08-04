@@ -14,7 +14,11 @@
             android:id="@+id/action_scanFragment_to_webActivity"
             app:destination="@id/webActivity"
             app:popUpTo="@id/scanFragment"
-            app:popUpToInclusive="true" />
+            app:popUpToInclusive="true" >
+            <argument
+                android:name="fromCode"
+                android:defaultValue="true" />
+        </action>
     </fragment>
     <fragment
         android:id="@+id/mainFragment"
@@ -33,5 +37,9 @@
         <argument
             android:name="url"
             app:argType="string" />
+        <argument
+            android:name="fromCode"
+            app:argType="boolean"
+            android:defaultValue="false" />
     </activity>
 </navigation>

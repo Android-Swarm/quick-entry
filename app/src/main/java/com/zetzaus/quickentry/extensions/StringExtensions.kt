@@ -7,3 +7,6 @@ fun String.isSafeEntryCodeURL() =
 
 fun String.isSafeEntryURL() =
     this matches """^https://www\.safeentry-qr\.gov\.sg/tenant/.+$"""
+
+fun String.isSafeEntryCompletionURL() =
+    this matches """^https://www\.safeentry-qr\.gov\.sg/complete/.+/.+$"""

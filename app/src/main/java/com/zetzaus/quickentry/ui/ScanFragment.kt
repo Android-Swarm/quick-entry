@@ -2,6 +2,7 @@ package com.zetzaus.quickentry.ui
 
 import android.Manifest
 import android.content.pm.PackageManager
+import android.location.Location
 import android.os.Bundle
 import android.util.Log
 import android.view.LayoutInflater
@@ -32,9 +33,10 @@ class ScanFragment : Fragment() {
     private var preview: Preview? = null
     private var imageAnalysis: ImageAnalysis? = null
     private var camera: Camera? = null
+    private var lastLocation: Location? = null
 
     private val viewModel by activityViewModels<MainActivityViewModel>()
-    private var lastLocation = viewModel.lastLocation.value
+
 
     private lateinit var root: View
     private lateinit var cameraExecutor: ExecutorService
@@ -54,8 +56,10 @@ class ScanFragment : Fragment() {
 
         cameraExecutor = Executors.newSingleThreadExecutor()
 
+        lastLocation = viewModel.lastLocation.value
         viewModel.lastLocation.observe(viewLifecycleOwner) { newLocation ->
             lastLocation = newLocation
+
             Log.d(TAG, "Received location, updating current location.")
         }
 
