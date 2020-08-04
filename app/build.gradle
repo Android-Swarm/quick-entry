@@ -2,6 +2,7 @@ apply plugin: 'com.android.application'
 apply plugin: 'kotlin-android'
 apply plugin: 'kotlin-android-extensions'
 apply plugin: "androidx.navigation.safeargs"
+apply plugin: 'kotlin-kapt'
 
 android {
     compileSdkVersion 29
@@ -49,7 +50,7 @@ dependencies {
 
     // CameraX
     def camerax_version = "1.0.0-beta07"
-    implementation"androidx.camera:camera-camera2:$camerax_version"
+    implementation "androidx.camera:camera-camera2:$camerax_version"
     implementation "androidx.camera:camera-lifecycle:$camerax_version"
     implementation "androidx.camera:camera-view:1.0.0-alpha14"
 
@@ -63,6 +64,20 @@ dependencies {
 
     // Location API
     implementation 'com.google.android.gms:play-services-location:17.0.0'
+
+    // Room database
+    def room_version = "2.2.5"
+    implementation "androidx.room:room-runtime:$room_version"
+    implementation "androidx.room:room-ktx:$room_version" // Coroutine support
+    kapt "androidx.room:room-compiler:$room_version" // Annotation processor
+
+    // Live data
+    def lifecycle_version="2.2.0"
+    implementation "androidx.lifecycle:lifecycle-livedata-ktx:$lifecycle_version"
+
+    // HTML parser
+    implementation 'org.jsoup:jsoup:1.13.1'
+
 
     implementation fileTree(dir: "libs", include: ["*.jar"])
     implementation "org.jetbrains.kotlin:kotlin-stdlib:$kotlin_version"

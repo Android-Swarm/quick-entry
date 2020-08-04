@@ -10,3 +10,6 @@ fun String.isSafeEntryURL() =
 
 fun String.isSafeEntryCompletionURL() =
     this matches """^https://www\.safeentry-qr\.gov\.sg/complete/.+/.+$"""
+
+infix fun String.getLeafLevel(level: Int) =
+    this.split("/").run { get(lastIndex - level) }

@@ -14,11 +14,7 @@
             android:id="@+id/action_scanFragment_to_webActivity"
             app:destination="@id/webActivity"
             app:popUpTo="@id/scanFragment"
-            app:popUpToInclusive="true" >
-            <argument
-                android:name="fromCode"
-                android:defaultValue="true" />
-        </action>
+            app:popUpToInclusive="true" />
     </fragment>
     <fragment
         android:id="@+id/mainFragment"
@@ -33,13 +29,16 @@
         android:id="@+id/webActivity"
         android:name="com.zetzaus.quickentry.ui.WebActivity"
         android:label="activity_web"
-        tools:layout="@layout/activity_web" >
+        tools:layout="@layout/activity_web">
         <argument
             android:name="url"
             app:argType="string" />
         <argument
-            android:name="fromCode"
-            app:argType="boolean"
-            android:defaultValue="false" />
+            android:name="shouldPersist"
+            app:argType="boolean" />
+        <argument
+            android:name="snapLocation"
+            app:argType="android.location.Location"
+            app:nullable="true" />
     </activity>
 </navigation>

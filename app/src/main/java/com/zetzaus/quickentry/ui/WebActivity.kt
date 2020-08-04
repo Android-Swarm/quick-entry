@@ -12,13 +12,12 @@ class WebActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_web)
 
-        val url = WebActivityArgs.fromBundle(intent.extras!!).url
-        val fromCode = WebActivityArgs.fromBundle(intent.extras!!).fromCode
-
-        if (supportFragmentManager.findFragmentById(R.id.fragmentContainer) == null) {
-            supportFragmentManager.beginTransaction()
-                .add(R.id.fragmentContainer, WebFragment.create(url, fromCode))
-                .commit()
+        WebActivityArgs.fromBundle(intent.extras!!).apply {
+            if (supportFragmentManager.findFragmentById(R.id.fragmentContainer) == null) {
+                supportFragmentManager.beginTransaction()
+                    .add(R.id.fragmentContainer, WebFragment.create(url, shouldPersist, snapLocation))
+                    .commit()
+            }
         }
     }
 

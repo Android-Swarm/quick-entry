@@ -18,19 +18,18 @@ import kotlinx.android.synthetic.main.activity_main.*
 
 class MainActivity : AppCompatActivity() {
     private lateinit var viewModel: MainActivityViewModel
-    private var locationService: LocationService? = null
+    private lateinit var locationService: LocationService
     private lateinit var receiver: LocationReceiver
 
     private val serviceConnection = object : ServiceConnection {
         override fun onServiceDisconnected(name: ComponentName?) {
             Log.d(TAG, "Location service has been disconnected")
-            locationService = null
         }
 
         override fun onServiceConnected(name: ComponentName?, service: IBinder?) {
             Log.d(TAG, "Location service has been connected")
             locationService = (service as LocationService.LocationBinder).service
-            if (allPermissionsGranted()) locationService?.startLocationUpdates()
+            if (allPermissionsGranted()) locationService.startLocationUpdates()
         }
     }
 
@@ -87,7 +86,7 @@ class MainActivity : AppCompatActivity() {
     ) {
         if (requestCode == PERMISSION_CODE) {
             if (allPermissionsGranted()) {
-                locationService?.startLocationUpdates()
+                locationService.startLocationUpdates()
             } else {
                 Snackbar.make(
                     navHostFragment,
@@ -99,7 +98,6 @@ class MainActivity : AppCompatActivity() {
     }
 
     companion object {
-        //        val TAG = MainActivity::class.simpleName
         val PERMISSIONS = arrayOf(
             Manifest.permission.ACCESS_COARSE_LOCATION,
             Manifest.permission.ACCESS_FINE_LOCATION

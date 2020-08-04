@@ -33,7 +33,7 @@ class ScanFragment : Fragment() {
     private var preview: Preview? = null
     private var imageAnalysis: ImageAnalysis? = null
     private var camera: Camera? = null
-    private var lastLocation: Location? = null
+    private lateinit var lastLocation: Location
 
     private val viewModel by activityViewModels<MainActivityViewModel>()
 
@@ -56,7 +56,7 @@ class ScanFragment : Fragment() {
 
         cameraExecutor = Executors.newSingleThreadExecutor()
 
-        lastLocation = viewModel.lastLocation.value
+        viewModel.lastLocation.value?.let { lastLocation = it } // Try to initialize fast
         viewModel.lastLocation.observe(viewLifecycleOwner) { newLocation ->
             lastLocation = newLocation
 
@@ -122,8 +122,11 @@ class ScanFragment : Fragment() {
                     barcode.url?.let { urlBookmark ->
                         urlBookmark.url?.let { url ->
                             Log.d(TAG, "Found SafeEntry URL: $url")
-
-                            val action = ScanFragmentDirections.actionScanFragmentToWebActivity(url)
+                            val action = ScanFragmentDirections.actionScanFragmentToWebActivity(
+                                url,
+                                ::lastLocation.isInitialized,
+                                if (!::lastLocation.isInitialized) null else lastLocation
+                            )
                             viewFinder?.findNavController()?.navigate(action)
                         }
                     }

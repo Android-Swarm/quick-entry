@@ -3,4 +3,6 @@
 
     <string name="snack_bar_camera_permission_denied">Scanning QR code feature needs camera permission 😢</string>
     <string name="snack_bar_location_permission_denied">Please enable location permission for better experience</string>
+
+    <string name="hint_search_edit_text">Search location here</string>
 </resources>
