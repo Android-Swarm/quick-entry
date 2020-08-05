@@ -19,7 +19,8 @@ abstract class EntrySpotDatabase : RoomDatabase() {
                         context.applicationContext,
                         EntrySpotDatabase::class.java,
                         "entry_spot"
-                    ).fallbackToDestructiveMigration()
+                    )
+//                        .fallbackToDestructiveMigration()
                         .build()
                 }
 

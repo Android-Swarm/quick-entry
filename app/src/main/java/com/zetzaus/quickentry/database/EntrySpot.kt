@@ -15,3 +15,14 @@ data class EntrySpot(
     @Embedded val location: SimpleLocation,
     var checkedIn: Boolean = false
 )
+
+/**
+ * This class wraps an [EntrySpot] object with the distance from a given location in meters.
+ *
+ * @property entrySpot Which entry spot this belongs to.
+ * @property distance The distance from current location to the entry spot.
+ */
+data class DistancedSpot(
+    val entrySpot: EntrySpot,
+    val distance: Float?
+)

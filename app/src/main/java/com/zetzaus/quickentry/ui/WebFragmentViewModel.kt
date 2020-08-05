@@ -33,6 +33,7 @@ class WebFragmentViewModel(application: Application) : EntryViewModel(applicatio
     }
 
     fun saveSpot(url: String, locationName: String, location: Location) = viewModelScope.launch {
+        // TODO: make this an upsert function
         repository.save(
             EntrySpot(
                 urlId = url getLeafLevel 0,
@@ -51,9 +52,7 @@ class WebFragmentViewModel(application: Application) : EntryViewModel(applicatio
         repository
             .getById(url getLeafLevel 1)
             .apply { checkedIn = newCheckedIn }
-            .also {
-                repository.save(it)
-            }
+            .also { repository.save(it) }
     }
 
 

@@ -24,6 +24,13 @@
         <action
             android:id="@+id/action_mainFragment_to_scanFragment"
             app:destination="@id/scanFragment" />
+        <action
+            android:id="@+id/action_mainFragment_to_webActivity"
+            app:destination="@id/webActivity" >
+            <argument
+                android:name="shouldPersist"
+                android:defaultValue="false" />
+        </action>
     </fragment>
     <activity
         android:id="@+id/webActivity"

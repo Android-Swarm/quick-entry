@@ -44,13 +44,6 @@ class WebFragment : Fragment() {
         }
 
         Log.d(TAG, "Received URL: $url")
-        Log.d(
-            TAG,
-            if (fromCode)
-                "The URL is from code, further data will be saved"
-            else
-                "The URL is from list, no data will be written"
-        )
 
         root.findViewById<WebView>(R.id.webView).apply {
             settings.apply {
@@ -144,7 +137,10 @@ class WebFragment : Fragment() {
                     Log.d(TAG, "The safe entry URL $url is for location $this")
 
                     // Save to db
-                    viewModel.saveSpot(url, this, location!!)
+                    if (fromCode) {
+                        viewModel.saveSpot(url, this, location!!)
+                        Log.d(TAG, "Persisted spot in the database")
+                    }
                 }
         }
 
@@ -161,6 +157,7 @@ class WebFragment : Fragment() {
                     false
                 }
             )
+            Log.d(TAG, "Updated check-in status")
         }
     }
 

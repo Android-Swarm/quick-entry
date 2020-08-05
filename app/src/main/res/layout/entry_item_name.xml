@@ -1,32 +1,51 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:orientation="horizontal"
     android:padding="16dp">
 
-    <TextView
+    <ImageView
         android:id="@+id/checkedIn"
-        android:layout_width="0dp"
+        android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginEnd="8dp"
-        android:layout_weight="0.5"
-        tools:background="@android:color/holo_green_light" />
+        android:contentDescription="@string/content_description_checked_in"
+        android:src="@drawable/checked_in"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toStartOf="@id/textCustomName"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
 
     <com.google.android.material.textview.MaterialTextView
         android:id="@+id/textCustomName"
-        style="@style/TextAppearance.AppCompat.Body1"
-        android:layout_width="0dp"
+        style="@style/TextAppearance.AppCompat.Body2"
+        android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_weight="5"
-        tools:text="Hello testing the text" />
+        android:layout_marginStart="8dp"
+        app:layout_constraintStart_toEndOf="@id/checkedIn"
+        app:layout_constraintTop_toTopOf="parent"
+        tools:text="This will be the custom name" />
+
+    <com.google.android.material.textview.MaterialTextView
+        android:id="@+id/textOriginalName"
+        style="@style/TextAppearance.AppCompat.Caption"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="8dp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintStart_toEndOf="@id/checkedIn"
+        app:layout_constraintTop_toBottomOf="@+id/textCustomName"
+        tools:text="This will be the original name" />
 
     <com.google.android.material.textview.MaterialTextView
         android:id="@+id/textDistance"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:layout_weight="2"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
         tools:text="160 meters" />
 
-</LinearLayout>
+</androidx.constraintlayout.widget.ConstraintLayout>
