@@ -6,11 +6,19 @@ import android.util.Log
 import androidx.lifecycle.*
 import com.zetzaus.quickentry.database.DistancedSpot
 import com.zetzaus.quickentry.database.EntrySpot
+import com.zetzaus.quickentry.database.FirebaseHandler
 import com.zetzaus.quickentry.database.toLocation
+import kotlinx.coroutines.launch
 
 class MainFragmentViewModel(application: Application) : EntryViewModel(application) {
     private val liveQuery = MutableLiveData<String>("")
     private val liveLocation = MutableLiveData<Location?>(null)
+    private val firebase = FirebaseHandler.getInstance(application.baseContext)
+
+    init {
+        // Fetch data from Firebase
+        viewModelScope.launch { firebase.readAll(viewModelScope) }
+    }
 
     private val liveEntrySpots
         get() = Transformations.switchMap(liveQuery) {

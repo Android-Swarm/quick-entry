@@ -3,22 +3,22 @@ package com.zetzaus.quickentry.database
 import android.location.Location
 import androidx.room.Embedded
 import androidx.room.Entity
-import androidx.room.PrimaryKey
+import com.google.firebase.database.Exclude
 
-class SimpleLocation(var latitude: Double, var longitude: Double) {
+class SimpleLocation(var latitude: Double = 0.0, var longitude: Double = 0.0) {
     override fun toString(): String {
         return "$latitude, $longitude"
     }
 }
 
-@Entity(tableName = "entry_spot")
+@Entity(tableName = "entry_spot", primaryKeys = ["urlId", "originalName"])
 data class EntrySpot(
-    @PrimaryKey val urlId: String,
-    val originalName: String,
-    var customName: String,
-    val url: String,
-    @Embedded var location: SimpleLocation,
-    var checkedIn: Boolean = false
+    val urlId: String = "",
+    val originalName: String = "",
+    @get:Exclude var customName: String = "",
+    val url: String = "",
+    @Embedded var location: SimpleLocation = SimpleLocation(),
+    @get:Exclude var checkedIn: Boolean = false
 )
 
 /**

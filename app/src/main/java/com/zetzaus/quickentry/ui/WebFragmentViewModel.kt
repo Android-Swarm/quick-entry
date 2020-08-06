@@ -19,7 +19,7 @@ class WebFragmentViewModel(application: Application) : EntryViewModel(applicatio
      * This variable will save which safe entry URL has been detected. This is as a workaround
      * for when [WebChromeClient.onProgressChanged] is called multiple times.
      */
-    val detectedUrls = mutableListOf<String>()
+    val detectedUrls = mutableSetOf<String>()
 
     private val _progressIndicatorVisibility = MutableLiveData<Boolean>()
     val progressIndicatorVisibility = Transformations.switchMap(_progressIndicatorVisibility) {
@@ -38,7 +38,7 @@ class WebFragmentViewModel(application: Application) : EntryViewModel(applicatio
         val targetUrlId = url getLeafLevel 0
 
         // Try to do upsert first
-        repository.getByIdOrNull(targetUrlId)?.apply {
+        val newSpot = repository.getById(targetUrlId, locationName)?.apply {
             Log.d(TAG, "Found an entry for this location, initial location: ${this.location}")
             this.location = this.location middleOf location
             Log.d(TAG, "Location is updated to ${this.location}")
@@ -48,15 +48,18 @@ class WebFragmentViewModel(application: Application) : EntryViewModel(applicatio
             originalName = locationName,
             customName = locationName,
             location = location.toSimpleLocation()
-        ).also { repository.save(it) }
+        )
+
+        repository.save(newSpot)
     }
 
-    fun updateCheckIn(url: String, newCheckedIn: Boolean) = viewModelScope.launch {
-        repository
-            .getById(url getLeafLevel 1)
-            .apply { checkedIn = newCheckedIn }
-            .also { repository.save(it) }
-    }
+    fun updateCheckIn(url: String, locationName: String, newCheckedIn: Boolean) =
+        viewModelScope.launch {
+            repository
+                .getById(url getLeafLevel 1, locationName)
+                ?.apply { checkedIn = newCheckedIn }
+                ?.also { repository.save(it) }
+        }
 
     companion object {
         val TAG = WebFragmentViewModel::class.simpleName

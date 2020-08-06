@@ -35,8 +35,8 @@ interface EntrySpotDao {
      *
      * @return An entry spot with the given id.
      */
-    @Query("SELECT * FROM entry_spot WHERE urlId = :urlId")
-    suspend fun getSpotById(urlId: String): EntrySpot
+    @Query("SELECT * FROM entry_spot WHERE urlId = :urlId AND originalName LIKE :originalName")
+    suspend fun getSpotByKey(urlId: String, originalName: String): EntrySpot?
 
     /**
      * Persists an [EntrySpot] to the database. Use this method to do an update as well.

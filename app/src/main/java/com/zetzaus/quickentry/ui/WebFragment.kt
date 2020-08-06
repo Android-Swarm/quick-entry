@@ -78,7 +78,7 @@ class WebFragment : Fragment() {
                     viewModel.updateProgressIndicator(newProgress)
 
                     if (newProgress == 100) {
-                        view?.let { processCurrentURL(view, view.url) }
+                        view?.let { processCurrentURL(view) }
                     }
                 }
 
@@ -125,27 +125,43 @@ class WebFragment : Fragment() {
     private inner class JsHandler {
         @JavascriptInterface
         fun processHTML(content: String, url: String) {
-            Jsoup.parse(content)
-                .getElementById("location-text")
-                .text()
-                .run {
-                    val locationIdentifier = url + this
-                    if (locationIdentifier !in viewModel.detectedUrls)
-                        viewModel.detectedUrls.add(locationIdentifier)
-                    else return
-
-                    Log.d(TAG, "The safe entry URL $url is for location $this")
-
-                    // Save to db
-                    if (fromCode) {
-                        viewModel.saveSpot(url, this, location!!)
-                        Log.d(TAG, "Persisted spot in the database")
+            when {
+                url.isSafeEntryURL() -> Jsoup.parse(content)
+                    .getElementById("location-text")
+                    .text()
+                    .run {
+                        processSafeEntry(url, this)
                     }
-                }
+
+                url.isSafeEntryCompletionURL() -> Jsoup.parse(content)
+                    .getElementsByClass("building-name ng-star-inserted")[0]
+                    .text()
+                    .run {
+                        Log.d(TAG, "Completed transaction for the location $this")
+                        checkInOrOut(content, url, this)
+                    }
+            }
+
         }
 
-        @JavascriptInterface
-        fun checkInOrOut(content: String, url: String) {
+        private fun processSafeEntry(url: String, locationName: String) {
+
+            val locationIdentifier = url + locationName
+            if (!viewModel.detectedUrls.add(locationIdentifier))
+                return
+
+            Log.d(TAG, "The safe entry URL $url is for location $locationName")
+
+            // Save to db
+            if (fromCode) {
+                viewModel.saveSpot(url, locationName, location!!)
+                Log.d(TAG, "Persisted spot in the database")
+            }
+
+        }
+
+        private fun checkInOrOut(content: String, url: String, locationName: String) {
+            Jsoup.parse(content)
             viewModel.updateCheckIn(
                 url = url,
                 newCheckedIn = if (content.contains("checkin-success-page-icon.svg")) {
@@ -155,32 +171,22 @@ class WebFragment : Fragment() {
                     //checkout-success-page-icon.svg
                     Log.d(TAG, "User has checked out to the location")
                     false
-                }
+                },
+                locationName = locationName
             )
             Log.d(TAG, "Updated check-in status")
         }
     }
 
-    private fun processCurrentURL(view: WebView?, url: String) {
-        if (url.isSafeEntryURL()) {
+    private fun processCurrentURL(view: WebView?) {
+        lifecycleScope.launch {
+            delay(500) // Wait until form completion
             view?.loadUrl(
                 "javascript:window.HTMLOUT.processHTML(" +
                         "'<html>'+document.getElementsByTagName('html')[0].innerHTML+'</html>', " +
                         "'${view.url}'" +
                         ");"
             )
-        } else if (url.isSafeEntryCompletionURL()) {
-            Log.d(TAG, "Encountered safe entry completion url: $url")
-
-            lifecycleScope.launch {
-                delay(500) // Wait until form completion
-                view?.loadUrl(
-                    "javascript:window.HTMLOUT.checkInOrOut(" +
-                            "'<html>'+document.getElementsByTagName('html')[0].innerHTML+'</html>', " +
-                            "'${view.url}'" +
-                            ");"
-                )
-            }
         }
     }
 

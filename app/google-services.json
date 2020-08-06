@@ -1,0 +1,40 @@
+{
+  "project_info": {
+    "project_number": "603218701520",
+    "firebase_url": "https://quick-entry-812b0.firebaseio.com",
+    "project_id": "quick-entry-812b0",
+    "storage_bucket": "quick-entry-812b0.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:603218701520:android:95055cfc98ad6bb88e02d5",
+        "android_client_info": {
+          "package_name": "com.zetzaus.quickentry"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "603218701520-8s4hfkqbm5p78vp0406t765fh2cfoa5r.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBhyoDEXzQCU3wF1-XO7r-Bu0noQ9Q_-6c"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "603218701520-8s4hfkqbm5p78vp0406t765fh2cfoa5r.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
