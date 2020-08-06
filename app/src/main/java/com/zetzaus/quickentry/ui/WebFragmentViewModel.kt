@@ -2,12 +2,14 @@ package com.zetzaus.quickentry.ui
 
 import android.app.Application
 import android.location.Location
+import android.util.Log
 import android.webkit.WebChromeClient
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.Transformations
 import androidx.lifecycle.viewModelScope
 import com.zetzaus.quickentry.database.EntrySpot
-import com.zetzaus.quickentry.database.SimpleLocation
+import com.zetzaus.quickentry.database.middleOf
+import com.zetzaus.quickentry.database.toSimpleLocation
 import com.zetzaus.quickentry.extensions.getLeafLevel
 import kotlinx.coroutines.launch
 
@@ -33,19 +35,20 @@ class WebFragmentViewModel(application: Application) : EntryViewModel(applicatio
     }
 
     fun saveSpot(url: String, locationName: String, location: Location) = viewModelScope.launch {
-        // TODO: make this an upsert function
-        repository.save(
-            EntrySpot(
-                urlId = url getLeafLevel 0,
-                url = url,
-                originalName = locationName,
-                customName = locationName,
-                location = SimpleLocation(
-                    latitude = location.latitude,
-                    longitude = location.longitude
-                )
-            )
-        )
+        val targetUrlId = url getLeafLevel 0
+
+        // Try to do upsert first
+        repository.getByIdOrNull(targetUrlId)?.apply {
+            Log.d(TAG, "Found an entry for this location, initial location: ${this.location}")
+            this.location = this.location middleOf location
+            Log.d(TAG, "Location is updated to ${this.location}")
+        } ?: EntrySpot(
+            urlId = targetUrlId,
+            url = url,
+            originalName = locationName,
+            customName = locationName,
+            location = location.toSimpleLocation()
+        ).also { repository.save(it) }
     }
 
     fun updateCheckIn(url: String, newCheckedIn: Boolean) = viewModelScope.launch {
@@ -55,5 +58,7 @@ class WebFragmentViewModel(application: Application) : EntryViewModel(applicatio
             .also { repository.save(it) }
     }
 
-
+    companion object {
+        val TAG = WebFragmentViewModel::class.simpleName
+    }
 }

@@ -14,4 +14,10 @@ class EntrySpotRepository(context: Context) {
     suspend fun save(entrySpot: EntrySpot) = dao.save(entrySpot)
 
     suspend fun getById(urlId: String) = dao.getSpotById(urlId)
+
+    suspend fun getByIdOrNull(urlId: String) = try {
+        getById(urlId)
+    } catch (e: Exception) {
+        null
+    }
 }
