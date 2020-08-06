@@ -37,7 +37,6 @@ class ScanFragment : Fragment() {
 
     private val viewModel by activityViewModels<MainActivityViewModel>()
 
-
     private lateinit var root: View
     private lateinit var cameraExecutor: ExecutorService
 
@@ -48,12 +47,6 @@ class ScanFragment : Fragment() {
     ): View? {
         root = inflater.inflate(R.layout.fragment_scan, container, false)
 
-        if (!allPermissionsGranted()) {
-            requestPermissions(PERMISSIONS, REQUEST_PERMISSION_CODE)
-        } else {
-            startCamera()
-        }
-
         cameraExecutor = Executors.newSingleThreadExecutor()
 
         viewModel.lastLocation.value?.let { lastLocation = it } // Try to initialize fast
@@ -63,8 +56,17 @@ class ScanFragment : Fragment() {
             Log.d(TAG, "Received location, updating current location.")
         }
 
-
         return root
+    }
+
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        super.onViewCreated(view, savedInstanceState)
+
+        if (!allPermissionsGranted()) {
+            requestPermissions(PERMISSIONS, REQUEST_PERMISSION_CODE)
+        } else {
+            startCamera()
+        }
     }
 
     override fun onRequestPermissionsResult(

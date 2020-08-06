@@ -9,6 +9,8 @@ class EntrySpotRepository(context: Context) {
     val entrySpotsFlow
         get() = dao.getAllSpots()
 
+    fun getSpotsContaining(query: String) = dao.getSpotsContaining("%$query%")
+
     suspend fun save(entrySpot: EntrySpot) = dao.save(entrySpot)
 
     suspend fun getById(urlId: String) = dao.getSpotById(urlId)

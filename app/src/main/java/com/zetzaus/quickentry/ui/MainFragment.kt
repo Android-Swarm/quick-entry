@@ -1,6 +1,5 @@
 package com.zetzaus.quickentry.ui
 
-import android.location.Location
 import android.os.Bundle
 import android.text.Editable
 import android.text.TextWatcher
@@ -63,17 +62,12 @@ class MainFragment : Fragment() {
                 Unit
 
             override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {
-                spotAdapter.submitList(
-                    viewModel.liveEntrySpots.value?.filter {
-                        s?.run { it.entrySpot.customName.contains(s) }
-                            ?: true
-                    }
-                )
+                s?.let { viewModel.updateQuery(s.toString()) }
             }
         })
 
-        viewModel.liveEntrySpots.observe(viewLifecycleOwner) {
-            spotAdapter.submitList(it)
+        viewModel.liveDistancedSpots.observe(viewLifecycleOwner) { spots ->
+            spotAdapter.submitList(spots.sortedBy { it.distance ?: Float.MAX_VALUE })
         }
 
         sharedModel.lastLocation.observe(viewLifecycleOwner) { currentLocation ->
@@ -83,20 +77,7 @@ class MainFragment : Fragment() {
                         "${currentLocation.latitude} ${currentLocation.longitude}" +
                         ", refreshing list..."
             )
-
-            // fetch current list, sort by distance, submit the list
-            spotAdapter.currentList
-                .map {
-                    DistancedSpot(
-                        entrySpot = it.entrySpot,
-                        distance = Location("").apply {
-                            latitude = it.entrySpot.location.latitude
-                            longitude = it.entrySpot.location.longitude
-                        }.distanceTo(currentLocation)
-                    )
-                }
-                .sortedBy { it.distance ?: Float.MAX_VALUE }
-                .run { spotAdapter.submitList(this) }
+            viewModel.updateLocation(currentLocation)
         }
 
         recyclerView.apply {

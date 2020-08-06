@@ -11,7 +11,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:contentDescription="@string/content_description_checked_in"
-        android:src="@drawable/checked_in"
+        android:src="@drawable/ic_checked_in"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toStartOf="@id/textCustomName"
         app:layout_constraintStart_toStartOf="parent"
@@ -40,12 +40,12 @@
 
     <com.google.android.material.textview.MaterialTextView
         android:id="@+id/textDistance"
-        android:layout_width="0dp"
+        android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_weight="2"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintTop_toTopOf="parent"
-        tools:text="160 meters" />
+        tools:text="160 m" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

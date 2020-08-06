@@ -17,6 +17,24 @@ interface EntrySpotDao {
     @Query("SELECT * FROM entry_spot ORDER BY checkedIn, customName")
     fun getAllSpots(): Flow<List<EntrySpot>>
 
+    /**
+     * Returns all entry spots that contains the query string in the spot's custom name.
+     *
+     * @param query The query string that must exist in the spot's custom name.
+     *
+     * @return all entry spots that contains the query string in the spot's custom name.
+     */
+    @Query("SELECT * FROM entry_spot WHERE customName LIKE :query ORDER BY checkedIn, customName")
+    fun getSpotsContaining(query: String): Flow<List<EntrySpot>>
+
+    /**
+     * Returns an entry spot according to the given id.
+     *
+     * @param urlId The ID of the spot. In the Safe Entry URL it is the leaf of the URL. In the check in
+     *              or check out page, it is the second last path of the URL.
+     *
+     * @return An entry spot with the given id.
+     */
     @Query("SELECT * FROM entry_spot WHERE urlId = :urlId")
     suspend fun getSpotById(urlId: String): EntrySpot
 

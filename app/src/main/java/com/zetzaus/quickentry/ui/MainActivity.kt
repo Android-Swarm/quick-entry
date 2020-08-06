@@ -39,10 +39,6 @@ class MainActivity : AppCompatActivity() {
 
         viewModel = ViewModelProvider(this)[MainActivityViewModel::class.java]
         receiver = LocationReceiver()
-    }
-
-    override fun onResume() {
-        super.onResume()
 
         bindService(
             Intent(this, LocationService::class.java),
@@ -56,6 +52,10 @@ class MainActivity : AppCompatActivity() {
             LocationService.LOCAL_PERMISSION,
             null
         )
+    }
+
+    override fun onStart() {
+        super.onStart()
 
         if (!allPermissionsGranted()) {
             ActivityCompat.requestPermissions(
@@ -66,8 +66,8 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
-    override fun onPause() {
-        super.onPause()
+    override fun onDestroy() {
+        super.onDestroy()
         unbindService(serviceConnection)
         unregisterReceiver(receiver)
     }
@@ -94,6 +94,8 @@ class MainActivity : AppCompatActivity() {
                     Snackbar.LENGTH_LONG
                 ).show()
             }
+        } else {
+            super.onRequestPermissionsResult(requestCode, permissions, grantResults)
         }
     }
 

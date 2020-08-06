@@ -1,5 +1,6 @@
 package com.zetzaus.quickentry.database
 
+import android.location.Location
 import androidx.room.Embedded
 import androidx.room.Entity
 import androidx.room.PrimaryKey
@@ -26,3 +27,9 @@ data class DistancedSpot(
     val entrySpot: EntrySpot,
     val distance: Float?
 )
+
+/** Converts a [SimpleLocation] to [Location]. */
+fun SimpleLocation.toLocation() = Location("").apply {
+    latitude = this@toLocation.latitude
+    longitude = this@toLocation.longitude
+}

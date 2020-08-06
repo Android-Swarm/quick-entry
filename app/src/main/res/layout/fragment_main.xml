@@ -19,7 +19,7 @@
             android:hint="@string/hint_search_edit_text"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent"
-            app:startIconDrawable="@android:drawable/ic_search_category_default">
+            app:startIconDrawable="@drawable/ic_search_24">
 
             <com.google.android.material.textfield.TextInputEditText
                 android:id="@+id/editText"
