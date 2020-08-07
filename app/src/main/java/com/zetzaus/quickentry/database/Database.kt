@@ -40,7 +40,7 @@ abstract class EntrySpotDatabase : RoomDatabase() {
     }
 }
 
-class FirebaseHandler(context: Context) {
+class FirebaseHandler private constructor(context: Context) {
     private val database by lazy { Firebase.database.reference }
     private val dao = EntrySpotDatabase.createDatabase(context).entrySpotDao
 
@@ -48,6 +48,12 @@ class FirebaseHandler(context: Context) {
      * of the URL ID and the original location name. */
     private fun EntrySpot.createSingleId() = urlId + originalName
 
+    /**
+     * Tries to update [EntrySpot] first before doing an insertion. The update mechanism is similar
+     * to the local [EntrySpot] update operation.
+     *
+     * @param spot The new data to upsert.
+     */
     suspend fun upsert(spot: EntrySpot) = withContext(Dispatchers.IO) {
         Log.d(TAG, "Start of upsert() method")
         database.child(ROOT).child(spot.createSingleId())
@@ -66,6 +72,11 @@ class FirebaseHandler(context: Context) {
             })
     }
 
+    /**
+     * Overwrites an [EntrySpot] in Firebase Realtime Database.
+     *
+     * @param spot The new data to write.
+     */
     private fun overwrite(spot: EntrySpot) {
         database.child(ROOT).child(spot.createSingleId()).setValue(spot)
             .addOnCompleteListener {
@@ -79,6 +90,14 @@ class FirebaseHandler(context: Context) {
             }
     }
 
+    /**
+     * Read all [EntrySpot] from Firebase Realtime Database. This function will then insert all
+     * [EntrySpot] location which is not in the database yet.
+     *
+     * @param scope The coroutine scope to update the local database. Use `viewModelScope` if this
+     * code is called inside a `ViewModel`. Otherwise, choose the appropriate scope where this code
+     * is called.
+     */
     suspend fun readAll(scope: CoroutineScope) = withContext(Dispatchers.IO) {
         database.child(ROOT).addValueEventListener(object : ValueEventListener {
             override fun onCancelled(error: DatabaseError) {
@@ -110,6 +129,11 @@ class FirebaseHandler(context: Context) {
         const val ROOT = "entry_spot"
         private lateinit var INSTANCE: FirebaseHandler
 
+        /**
+         * Creates a new [FirebaseHandler], or return an existing one.
+         *
+         * @param context The context used to retrieve [EntrySpotDao].
+         */
         fun getInstance(context: Context) =
             synchronized(FirebaseHandler::class.java) {
                 if (!::INSTANCE.isInitialized) {
