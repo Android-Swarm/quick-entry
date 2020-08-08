@@ -6,10 +6,14 @@ import android.content.pm.PackageManager
 import android.os.Bundle
 import android.os.IBinder
 import android.util.Log
+import android.view.Menu
+import android.view.MenuItem
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import androidx.lifecycle.ViewModelProvider
+import androidx.navigation.fragment.findNavController
+import androidx.navigation.ui.NavigationUI
 import com.google.android.material.snackbar.Snackbar
 import com.zetzaus.quickentry.R
 import com.zetzaus.quickentry.extensions.TAG
@@ -96,6 +100,22 @@ class MainActivity : AppCompatActivity() {
             }
         } else {
             super.onRequestPermissionsResult(requestCode, permissions, grantResults)
+        }
+    }
+
+    override fun onCreateOptionsMenu(menu: Menu?): Boolean {
+        menuInflater.inflate(R.menu.menu_main, menu)
+        return super.onCreateOptionsMenu(menu)
+    }
+
+    override fun onOptionsItemSelected(item: MenuItem): Boolean {
+        return try {
+            supportFragmentManager.fragments.first().findNavController().run {
+                NavigationUI.onNavDestinationSelected(item, this)
+            }
+        } catch (e: Exception) {
+            Log.e(TAG, "Encountered exception when selection menu item: ", e)
+            super.onOptionsItemSelected(item)
         }
     }
 

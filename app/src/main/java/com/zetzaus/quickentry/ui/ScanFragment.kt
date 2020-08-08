@@ -26,6 +26,7 @@ import com.google.mlkit.vision.barcode.Barcode
 import com.google.mlkit.vision.barcode.BarcodeScannerOptions
 import com.zetzaus.quickentry.R
 import com.zetzaus.quickentry.camera.BarcodeAnalyzer
+import com.zetzaus.quickentry.database.NricRepository
 import com.zetzaus.quickentry.extensions.TAG
 import com.zetzaus.quickentry.extensions.isNRICBarcode
 import com.zetzaus.quickentry.extensions.isSafeEntryCodeURL
@@ -244,11 +245,14 @@ class ScanFragment : Fragment() {
     private fun processCode39(text: String) {
         Log.d(TAG, "Found NRIC barcode! First 4: ${text.slice(0..3)}")
 
+        //Save to shared preference
+        NricRepository(requireContext()).saveBarcode(text)
+
         Snackbar.make(root, R.string.snack_bar_found_nric, Snackbar.LENGTH_LONG)
             .setAction(R.string.snack_bar_action_view) {
                 Log.d(TAG, "Pressed the View action on Snackbar")
-                //TODO: save to shared preference
-                //TODO: navigate to barcodeFragment
+                viewFinder?.findNavController()
+                    ?.navigateOnce(R.id.scanFragment, R.id.action_scanFragment_to_barcodeFragment)
             }.show()
     }
 

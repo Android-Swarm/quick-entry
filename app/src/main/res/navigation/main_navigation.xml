@@ -19,6 +19,11 @@
             app:popExitAnim="@anim/to_left"
             app:popUpTo="@id/scanFragment"
             app:popUpToInclusive="true" />
+        <action
+            android:id="@+id/action_scanFragment_to_barcodeFragment"
+            app:destination="@id/barcodeFragment"
+            app:popUpTo="@id/scanFragment"
+            app:popUpToInclusive="true" />
     </fragment>
     <fragment
         android:id="@+id/mainFragment"
@@ -57,4 +62,9 @@
             app:argType="android.location.Location"
             app:nullable="true" />
     </activity>
+    <fragment
+        android:id="@+id/barcodeFragment"
+        android:name="com.zetzaus.quickentry.ui.BarcodeFragment"
+        android:label="fragment_barcode"
+        tools:layout="@layout/fragment_barcode" />
 </navigation>
