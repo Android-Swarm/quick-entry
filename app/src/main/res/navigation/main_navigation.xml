@@ -13,6 +13,10 @@
         <action
             android:id="@+id/action_scanFragment_to_webActivity"
             app:destination="@id/webActivity"
+            app:enterAnim="@anim/from_left"
+            app:exitAnim="@anim/to_right"
+            app:popEnterAnim="@anim/from_right"
+            app:popExitAnim="@anim/to_left"
             app:popUpTo="@id/scanFragment"
             app:popUpToInclusive="true" />
     </fragment>
@@ -23,10 +27,15 @@
         tools:layout="@layout/fragment_main">
         <action
             android:id="@+id/action_mainFragment_to_scanFragment"
-            app:destination="@id/scanFragment" />
+            app:destination="@id/scanFragment"
+            app:popExitAnim="@anim/nav_default_pop_exit_anim" />
         <action
             android:id="@+id/action_mainFragment_to_webActivity"
-            app:destination="@id/webActivity" >
+            app:destination="@id/webActivity"
+            app:enterAnim="@anim/from_left"
+            app:exitAnim="@anim/to_right"
+            app:popEnterAnim="@anim/from_right"
+            app:popExitAnim="@anim/to_left">
             <argument
                 android:name="shouldPersist"
                 android:defaultValue="false" />

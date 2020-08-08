@@ -3,6 +3,7 @@ package com.zetzaus.quickentry.ui
 import android.os.Bundle
 import android.util.Log
 import androidx.appcompat.app.AppCompatActivity
+import androidx.navigation.ActivityNavigator
 import com.zetzaus.quickentry.R
 import com.zetzaus.quickentry.extensions.TAG
 
@@ -15,10 +16,16 @@ class WebActivity : AppCompatActivity() {
         WebActivityArgs.fromBundle(intent.extras!!).apply {
             if (supportFragmentManager.findFragmentById(R.id.fragmentContainer) == null) {
                 supportFragmentManager.beginTransaction()
-                    .add(R.id.fragmentContainer, WebFragment.create(url, shouldPersist, snapLocation))
+                    .add(
+                        R.id.fragmentContainer,
+                        WebFragment.create(url, shouldPersist, snapLocation)
+                    )
                     .commit()
             }
         }
+
+        // Enable the Up button
+        supportActionBar?.setDisplayHomeAsUpEnabled(true)
     }
 
     override fun onBackPressed() {
@@ -30,5 +37,10 @@ class WebActivity : AppCompatActivity() {
                 Log.d(TAG, "Calling back on the web view")
             }
         }
+    }
+
+    override fun finish() {
+        super.finish()
+        ActivityNavigator.applyPopAnimationsToPendingTransition(this)
     }
 }
