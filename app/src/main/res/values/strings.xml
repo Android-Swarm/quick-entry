@@ -3,10 +3,20 @@
 
     <string name="snack_bar_camera_permission_denied">Scanning QR code feature needs camera permission 😢</string>
     <string name="snack_bar_location_permission_denied">Please enable location permission for better experience</string>
+    <string name="snack_bar_found_nric">NRIC barcode detected, saved successfully! </string>
+    <string name="snack_bar_nric_mask">NRIC barcode hidden</string>
+    <string name="snack_bar_action_view">View</string>
 
     <string name="hint_search_edit_text">Search location here</string>
 
     <string name="no_location_yet">Waiting for GPS...</string>
 
     <string name="content_description_checked_in">This icon indicates that you have checked-in to the location and you have not checked out from it</string>
+
+    <string name="label_scanning">Looking for QR code or barcode</string>
+    <string name="label_scanned">Found barcode!</string>
+
+    <string name="label_scanned_nric">This is an NRIC barcode!</string>
+    <string name="label_scanned_safe_entry">This is a SafeEntry URL!</string>
+    <string name="label_scanned_invalid">This is neither a SafeEntry URL nor an NRIC barcode!</string>
 </resources>

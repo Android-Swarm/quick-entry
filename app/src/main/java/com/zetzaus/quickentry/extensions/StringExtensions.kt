@@ -11,5 +11,8 @@ fun String.isSafeEntryURL() =
 fun String.isSafeEntryCompletionURL() =
     this matches """^https://www\.safeentry-qr\.gov\.sg/complete/.+/.+$"""
 
+fun String.isNRICBarcode() =
+    this matches """^[STFG]\d{7}[A-Z]\d{6}[A-Z]*$"""
+
 infix fun String.getLeafLevel(level: Int) =
     this.split("/").run { get(lastIndex - level) }
