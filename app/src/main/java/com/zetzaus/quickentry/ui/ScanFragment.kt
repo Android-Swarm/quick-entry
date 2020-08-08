@@ -2,7 +2,6 @@ package com.zetzaus.quickentry.ui
 
 import android.Manifest
 import android.content.pm.PackageManager
-import android.location.Location
 import android.os.Bundle
 import android.text.Editable
 import android.text.TextWatcher
@@ -48,8 +47,6 @@ class ScanFragment : Fragment() {
 
     private var resetTextJob: Job? = null
 
-    private lateinit var lastLocation: Location
-
     private val viewModel by activityViewModels<MainActivityViewModel>()
 
     private lateinit var root: View
@@ -62,13 +59,6 @@ class ScanFragment : Fragment() {
         root = inflater.inflate(R.layout.fragment_scan, container, false)
 
         cameraExecutor = Executors.newSingleThreadExecutor()
-
-        viewModel.lastLocation.value?.let { lastLocation = it } // Try to initialize fast
-        viewModel.lastLocation.observe(viewLifecycleOwner) { newLocation ->
-            lastLocation = newLocation
-
-            Log.d(TAG, "Received location, updating current location.")
-        }
 
         return root
     }
@@ -93,8 +83,16 @@ class ScanFragment : Fragment() {
                     scanningProgressBar.isVisible = s.isBlank()
                 }
             }
-
         })
+
+        viewModel.lastLocation.observe(viewLifecycleOwner) { newLocation ->
+            if (newLocation != null) {
+                imageLocationIndicator.setImageResource(R.drawable.ic_baseline_location_on_24)
+            } else {
+                imageLocationIndicator.setImageResource(R.drawable.ic_baseline_location_off_24)
+            }
+            Log.d(TAG, "Received location, updating current location.")
+        }
     }
 
     override fun onRequestPermissionsResult(
@@ -235,8 +233,8 @@ class ScanFragment : Fragment() {
 
         val action = ScanFragmentDirections.actionScanFragmentToWebActivity(
             url,
-            ::lastLocation.isInitialized,
-            if (!::lastLocation.isInitialized) null else lastLocation
+            viewModel.lastLocation.value != null,
+            viewModel.lastLocation.value
         )
 
         viewFinder?.findNavController()

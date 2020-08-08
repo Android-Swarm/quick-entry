@@ -19,4 +19,6 @@
     <string name="label_scanned_nric">This is an NRIC barcode!</string>
     <string name="label_scanned_safe_entry">This is a SafeEntry URL!</string>
     <string name="label_scanned_invalid">This is neither a SafeEntry URL nor an NRIC barcode!</string>
+
+    <string name="content_desc_img_location_indicator">This image indicates whether the location is available</string>
 </resources>
