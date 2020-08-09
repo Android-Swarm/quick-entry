@@ -1,7 +1,6 @@
 package com.zetzaus.quickentry.database
 
 import android.content.Context
-import android.util.Log
 import androidx.core.content.edit
 import androidx.preference.PreferenceManager
 
@@ -21,8 +20,8 @@ class NricRepository(private val context: Context) {
         val encryptedBarcode = sharedPreference.getString(BARCODE_KEY, "")!!
         val initVector = sharedPreference.getString(IV_KEY, "")!!
 
-        Log.d("NricRepository", encryptedBarcode)
-        Log.d("NricRepository", initVector)
+//        Log.d("NricRepository", encryptedBarcode)
+//        Log.d("NricRepository", initVector)
 
         return CryptoManager.decrypt(
             encryptedBarcode,

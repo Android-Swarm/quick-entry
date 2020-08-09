@@ -6,7 +6,9 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.view.ViewTreeObserver
+import androidx.core.view.isVisible
 import androidx.fragment.app.Fragment
+import androidx.navigation.findNavController
 import com.google.zxing.BarcodeFormat
 import com.google.zxing.MultiFormatWriter
 import com.journeyapps.barcodescanner.BarcodeEncoder
@@ -41,6 +43,7 @@ class BarcodeFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
+        // Setup barcode image
         val observer = barcodeImage.viewTreeObserver
         val globalLayoutListener = object : ViewTreeObserver.OnGlobalLayoutListener {
             override fun onGlobalLayout() {
@@ -53,6 +56,20 @@ class BarcodeFragment : Fragment() {
         }
 
         observer.addOnGlobalLayoutListener(globalLayoutListener)
+
+        // Setup button
+        buttonScan.setOnClickListener {
+            it.findNavController().navigate(R.id.action_barcodeFragment_to_scanFragment)
+        }
+
+        // Setup edit text
+        editTextNric.setText(barcodeRaw?.slice(0..8) ?: "")
+        editTextNric.isVisible = barcodeRaw != null
+        textInputLayout.isVisible = barcodeRaw != null
+
+        // Setup text when no barcode is saved
+        textNoBarcode.isVisible = barcodeRaw == null
+
     }
 
     private fun getBarcodeBitmap(width: Int, height: Int) =

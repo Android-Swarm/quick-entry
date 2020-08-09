@@ -8,6 +8,7 @@
     <string name="snack_bar_action_view">View</string>
 
     <string name="hint_search_edit_text">Search location here</string>
+    <string name="hint_nric">Your NRIC</string>
 
     <string name="no_location_yet">Waiting for GPS...</string>
 
@@ -19,6 +20,11 @@
     <string name="label_scanned_nric">This is an NRIC barcode!</string>
     <string name="label_scanned_safe_entry">This is a SafeEntry URL!</string>
     <string name="label_scanned_invalid">This is neither a SafeEntry URL nor an NRIC barcode!</string>
+
+    <string name="label_barcode_title_section">Your Barcode</string>
+    <string name="label_barcode_none">No barcode saved yet!</string>
+
+    <string name="button_scan_barcode">Scan barcode</string>
 
     <string name="content_desc_img_location_indicator">This image indicates whether the location is available.</string>
     <string name="content_desc_img_barcode">This is an NRIC barcode.</string>

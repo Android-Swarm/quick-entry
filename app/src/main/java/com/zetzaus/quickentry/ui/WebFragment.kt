@@ -12,9 +12,9 @@ import android.view.ViewGroup
 import android.webkit.*
 import androidx.appcompat.app.AppCompatActivity
 import androidx.fragment.app.Fragment
-import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.lifecycleScope
+import androidx.lifecycle.observe
 import com.zetzaus.quickentry.R
 import com.zetzaus.quickentry.extensions.isSafeEntryCompletionURL
 import com.zetzaus.quickentry.extensions.isSafeEntryURL
@@ -74,7 +74,9 @@ class WebFragment : Fragment() {
             webChromeClient = object : WebChromeClient() {
                 override fun onProgressChanged(view: WebView?, newProgress: Int) {
                     super.onProgressChanged(view, newProgress)
-                    progressIndicator.setProgressCompat(newProgress, true)
+
+                    // Update progress bar, may be null due to lifecycle
+                    progressIndicator?.setProgressCompat(newProgress, true)
                     viewModel.updateProgressIndicator(newProgress)
 
                     if (newProgress == 100) {
@@ -100,12 +102,9 @@ class WebFragment : Fragment() {
         super.onViewCreated(view, savedInstanceState)
         viewModel = ViewModelProvider(this).get(WebFragmentViewModel::class.java)
 
-        viewModel.progressIndicatorVisibility.observe(viewLifecycleOwner,
-            Observer<Boolean> { t ->
-                t?.let { visible ->
-                    progressIndicator.visibility = if (visible) View.VISIBLE else View.GONE
-                }
-            })
+        viewModel.progressIndicatorVisibility.observe(viewLifecycleOwner) {
+            progressIndicator.visibility = if (it) View.VISIBLE else View.GONE
+        }
     }
 
     override fun onDestroy() {
@@ -119,7 +118,7 @@ class WebFragment : Fragment() {
      * @param sub The subtitle to set.
      */
     private fun setSubtitle(sub: String?) {
-        (activity as AppCompatActivity).supportActionBar?.subtitle = sub
+        (activity as? AppCompatActivity)?.supportActionBar?.subtitle = sub
     }
 
     private inner class JsHandler {

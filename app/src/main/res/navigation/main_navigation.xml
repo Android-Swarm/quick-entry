@@ -66,5 +66,9 @@
         android:id="@+id/barcodeFragment"
         android:name="com.zetzaus.quickentry.ui.BarcodeFragment"
         android:label="fragment_barcode"
-        tools:layout="@layout/fragment_barcode" />
+        tools:layout="@layout/fragment_barcode" >
+        <action
+            android:id="@+id/action_barcodeFragment_to_scanFragment"
+            app:destination="@id/scanFragment" />
+    </fragment>
 </navigation>
