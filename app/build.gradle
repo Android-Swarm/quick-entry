@@ -120,5 +120,9 @@ dependencies {
     // Online logger
     implementation 'com.bugfender.sdk:android:3.0.5'
 
+    // Paging 3.0
+    def paging_version = "3.0.0-alpha04"
+    implementation "androidx.paging:paging-runtime:$paging_version"
+
 
 }

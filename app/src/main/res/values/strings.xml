@@ -10,9 +10,12 @@
     <string name="hint_search_edit_text">Search location here</string>
     <string name="hint_nric">Your NRIC</string>
 
-    <string name="no_location_yet">Waiting for GPS...</string>
+    <string name="no_location_yet">---</string>
 
-    <string name="content_description_checked_in">This icon indicates that you have checked-in to the location and you have not checked out from it</string>
+    <string name="content_description_checked_in">This icon indicates that you have checked-in to the location and you have not checked out from it.</string>
+    <string name="content_description_location">This icon indicates the distance of the location from your current position/</string>
+    <string name="content_desc_img_location_indicator">This image indicates whether the location is available.</string>
+    <string name="content_desc_img_barcode">This is an NRIC barcode.</string>
 
     <string name="label_scanning">Looking for QR code or barcode</string>
     <string name="label_scanned">Found barcode!</string>
@@ -25,9 +28,6 @@
     <string name="label_barcode_none">No barcode saved yet!</string>
 
     <string name="button_scan_barcode">Scan barcode</string>
-
-    <string name="content_desc_img_location_indicator">This image indicates whether the location is available.</string>
-    <string name="content_desc_img_barcode">This is an NRIC barcode.</string>
 
     <string name="menu_credit">Credit</string>
     <string name="menu_barcode">My Barcode</string>

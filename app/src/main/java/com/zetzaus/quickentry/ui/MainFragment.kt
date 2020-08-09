@@ -29,11 +29,28 @@ class MainFragment : Fragment() {
     private lateinit var viewModel: MainFragmentViewModel
 
     private val entrySpotCallback = object : DiffUtil.ItemCallback<DistancedSpot>() {
-        override fun areItemsTheSame(oldItem: DistancedSpot, newItem: DistancedSpot): Boolean =
-            oldItem.entrySpot.urlId == newItem.entrySpot.urlId
+        override fun areItemsTheSame(oldItem: DistancedSpot, newItem: DistancedSpot): Boolean {
+            return oldItem.entrySpot.urlId == newItem.entrySpot.urlId
+        }
 
-        override fun areContentsTheSame(oldItem: DistancedSpot, newItem: DistancedSpot): Boolean =
-            oldItem == newItem
+        override fun areContentsTheSame(oldItem: DistancedSpot, newItem: DistancedSpot): Boolean {
+            return oldItem == newItem
+        }
+
+        /**
+         * Returns [OnlyDistanceChanged] object if the only field that changes is the distance.
+         *
+         * @param oldItem The old [DistancedSpot].
+         * @param newItem The updated [DistancedSpot].
+         * @return [OnlyDistanceChanged] if the only field that changes is the distance.
+         */
+        override fun getChangePayload(oldItem: DistancedSpot, newItem: DistancedSpot): Any? {
+            return if (oldItem.entrySpot == newItem.entrySpot && oldItem.distance != newItem.distance) {
+                OnlyDistanceChanged
+            } else {
+                super.getChangePayload(oldItem, newItem)
+            }
+        }
     }
 
     private val spotAdapter = EntrySpotAdapter(entrySpotCallback)
@@ -83,6 +100,7 @@ class MainFragment : Fragment() {
         recyclerView.apply {
             adapter = spotAdapter
             layoutManager = LinearLayoutManager(this@MainFragment.requireContext())
+            // itemAnimator = null
         }
     }
 
@@ -103,6 +121,20 @@ class MainFragment : Fragment() {
             holder.bind(currentList[position])
         }
 
+        override fun onBindViewHolder(
+            holder: EntrySpotViewHolder,
+            position: Int,
+            payloads: MutableList<Any>
+        ) {
+            if (payloads.isEmpty()) {
+                super.onBindViewHolder(holder, position, payloads)
+            } else {
+                if (payloads.any { it is OnlyDistanceChanged }) {
+                    holder.updateDistanceTextAndIndicator(currentList[position])
+                }
+            }
+        }
+
         inner class EntrySpotViewHolder(private val parent: View) :
             RecyclerView.ViewHolder(parent) {
 
@@ -116,12 +148,11 @@ class MainFragment : Fragment() {
 
                     findViewById<MaterialTextView>(R.id.textCustomName).text =
                         spot.entrySpot.customName
-                    findViewById<MaterialTextView>(R.id.textDistance).text =
-                        spot.distance?.let {
-                            "%.2f m".format(it)
-                        } ?: getString(R.string.no_location_yet)
 
-                    this.setOnClickListener {
+                    updateDistanceTextAndIndicator(spot)
+
+                    // When clicked, go to the website
+                    setOnClickListener {
                         MainFragmentDirections.actionMainFragmentToWebActivity(
                             spot.entrySpot.url,
                             null
@@ -129,8 +160,30 @@ class MainFragment : Fragment() {
                             view?.findNavController()?.navigate(this)
                         }
                     }
+
+//                    When long-clicked, go to the personalization fragment
+//                    setOnLongClickListener {
+//
+//                    }
                 }
+            }
+
+            fun updateDistanceTextAndIndicator(spot: DistancedSpot) {
+                parent.findViewById<MaterialTextView>(R.id.textDistance).text =
+                    spot.distance?.let {
+                        "%.2f m".format(it)
+                    } ?: getString(R.string.no_location_yet)
+
+                parent.findViewById<ImageView>(R.id.imageCardLocation).setImageResource(
+                    if (spot.distance == null) R.drawable.ic_baseline_location_off_24
+                    else R.drawable.ic_baseline_location_on_24
+                )
             }
         }
     }
+
+    /** A simple object that is used as a payload for the recycler view's adapter. This payload
+     * indicates that only the distance field is different.
+     */
+    object OnlyDistanceChanged
 }

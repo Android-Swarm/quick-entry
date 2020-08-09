@@ -2,7 +2,6 @@ package com.zetzaus.quickentry.ui
 
 import android.app.Application
 import android.location.Location
-import android.util.Log
 import androidx.lifecycle.*
 import com.zetzaus.quickentry.database.DistancedSpot
 import com.zetzaus.quickentry.database.EntrySpot
@@ -20,19 +19,16 @@ class MainFragmentViewModel(application: Application) : EntryViewModel(applicati
         viewModelScope.launch { firebase.readAll(viewModelScope) }
     }
 
-    private val liveEntrySpots
-        get() = Transformations.switchMap(liveQuery) {
-            if (it == "") {
-                Log.d(TAG, "No query string, retrieve all items")
-                repository.entrySpotsFlow
-            } else {
-                Log.d(TAG, "Query string is \"$it\", filtering items")
-                repository.getSpotsContaining(it)
-            }.asLiveData()
-        }
+    private val liveEntrySpots = Transformations.switchMap(liveQuery) {
+        if (it == "") {
+            repository.entrySpotsFlow
+        } else {
+            repository.getSpotsContaining(it)
+        }.asLiveData()
+    }
 
-    val liveDistancedSpots
-        get() = Transformations.switchMap(liveLocation) { liveEntrySpots.toDistancedSpot(it) }
+    val liveDistancedSpots =
+        Transformations.switchMap(liveLocation) { liveEntrySpots.toDistancedSpot(it) }
 
     /**
      * This extension function wraps the [EntrySpot] in a [DistancedSpot] with the appropriate distance.
@@ -44,10 +40,16 @@ class MainFragmentViewModel(application: Application) : EntryViewModel(applicati
             entryList.map {
                 DistancedSpot(
                     it,
-                    location?.distanceTo(it.location.toLocation())
+                    location?.distanceTo(it.location.toLocation())?.roundTo(2)
                 )
             }
         }
+
+    private infix fun Float.roundTo(decimalPlace: Int): Float {
+        var multiplier = 1.0f
+        repeat(decimalPlace) { multiplier *= 10 }
+        return Math.round(this * multiplier) / multiplier
+    }
 
     /**
      * Updates the query string for the list items.
