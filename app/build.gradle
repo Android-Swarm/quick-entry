@@ -117,5 +117,8 @@ dependencies {
     // SharedPreference
     implementation "androidx.preference:preference-ktx:1.1.1"
 
+    // Online logger
+    implementation 'com.bugfender.sdk:android:3.0.5'
+
 
 }
