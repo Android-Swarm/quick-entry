@@ -21,6 +21,10 @@ data class EntrySpot(
     @get:Exclude var checkedIn: Boolean = false
 )
 
+/** Extension function that creates a single [String] unique ID. The ID is a combination
+ * of the URL ID and the original location name. */
+fun EntrySpot.createSingleId() = urlId + originalName
+
 /**
  * This class wraps an [EntrySpot] object with the distance from a given location in meters.
  *

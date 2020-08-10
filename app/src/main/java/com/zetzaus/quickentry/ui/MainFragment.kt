@@ -13,6 +13,7 @@ import androidx.fragment.app.activityViewModels
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.observe
 import androidx.navigation.findNavController
+import androidx.navigation.fragment.FragmentNavigatorExtras
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.ListAdapter
@@ -20,6 +21,7 @@ import androidx.recyclerview.widget.RecyclerView
 import com.google.android.material.textview.MaterialTextView
 import com.zetzaus.quickentry.R
 import com.zetzaus.quickentry.database.DistancedSpot
+import com.zetzaus.quickentry.database.createSingleId
 import com.zetzaus.quickentry.extensions.TAG
 import kotlinx.android.synthetic.main.fragment_main.*
 
@@ -143,8 +145,11 @@ class MainFragment : Fragment() {
                     findViewById<ImageView>(R.id.checkedIn).visibility =
                         if (spot.entrySpot.checkedIn) View.VISIBLE else View.INVISIBLE
 
-                    findViewById<MaterialTextView>(R.id.textOriginalName).text =
-                        spot.entrySpot.originalName
+                    val sharedTextView =
+                        findViewById<MaterialTextView>(R.id.textOriginalName).apply {
+                            text = spot.entrySpot.originalName
+                            transitionName = spot.entrySpot.createSingleId()
+                        }
 
                     findViewById<MaterialTextView>(R.id.textCustomName).text =
                         spot.entrySpot.customName
@@ -163,13 +168,16 @@ class MainFragment : Fragment() {
 
                     // When long-clicked, go to the EntryDetailsFragment
                     setOnLongClickListener {
+                        val extras =
+                            FragmentNavigatorExtras(sharedTextView to spot.entrySpot.createSingleId())
+
                         MainFragmentDirections
                             .actionMainFragmentToEntryDetailsFragment(
                                 spot.entrySpot.urlId,
                                 spot.entrySpot.originalName
                             )
                             .run {
-                                view?.findNavController()?.navigate(this)
+                                view?.findNavController()?.navigate(this, extras)
                                 true
                             }
                     }

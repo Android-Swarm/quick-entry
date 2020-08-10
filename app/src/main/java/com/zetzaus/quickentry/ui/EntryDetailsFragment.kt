@@ -1,8 +1,7 @@
 package com.zetzaus.quickentry.ui
 
 import android.os.Bundle
-import android.text.Editable
-import android.text.TextWatcher
+import android.transition.TransitionInflater
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -11,10 +10,18 @@ import androidx.core.graphics.BlendModeColorFilterCompat
 import androidx.core.graphics.BlendModeCompat
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
+import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.observe
 import androidx.navigation.findNavController
+import com.google.android.gms.maps.CameraUpdateFactory
+import com.google.android.gms.maps.SupportMapFragment
+import com.google.android.gms.maps.model.LatLng
+import com.google.android.gms.maps.model.LatLngBounds
+import com.google.maps.android.ktx.addMarker
+import com.google.maps.android.ktx.awaitMap
 import com.zetzaus.quickentry.R
 import com.zetzaus.quickentry.database.EntrySpot
+import com.zetzaus.quickentry.database.createSingleId
 import kotlinx.android.synthetic.main.fragment_entry_details.*
 
 
@@ -23,6 +30,12 @@ class EntryDetailsFragment : Fragment() {
     private lateinit var viewModel: EntryDetailsViewModel
 
     private lateinit var currentSpot: EntrySpot
+
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        sharedElementEnterTransition =
+            TransitionInflater.from(requireContext()).inflateTransition(android.R.transition.move)
+    }
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -51,27 +64,8 @@ class EntryDetailsFragment : Fragment() {
             currentSpot = this
 
             editTextCustomName.setText(customName)
-            editTextCustomName.addTextChangedListener(object : TextWatcher {
-                override fun afterTextChanged(s: Editable?) = Unit
 
-                override fun beforeTextChanged(
-                    s: CharSequence?,
-                    start: Int,
-                    count: Int,
-                    after: Int
-                ) = Unit
-
-                override fun onTextChanged(
-                    s: CharSequence?,
-                    start: Int,
-                    before: Int,
-                    count: Int
-                ) {
-                    s?.let { currentSpot.customName = it.toString() }
-                }
-
-            })
-
+            textOriginalName.transitionName = createSingleId()
             textOriginalName.text = originalName
 
             buttonCheck.setText(
@@ -99,7 +93,36 @@ class EntryDetailsFragment : Fragment() {
             } else {
                 null
             }
+
+            setupLocationMap(this)
         }
+    }
+
+    private fun setupLocationMap(spot: EntrySpot) {
+        val mapFragment =
+            childFragmentManager.findFragmentById(R.id.mapFragment) as SupportMapFragment
+
+        lifecycleScope.launchWhenCreated {
+            val googleMap = mapFragment.awaitMap()
+
+            val spotPosition = LatLng(spot.location.latitude, spot.location.longitude)
+
+            val mapBounds = LatLngBounds.Builder()
+                .include(spotPosition)
+                .build()
+
+            val mapMargin = resources.getDimensionPixelSize(R.dimen.margin_inset_map)
+
+            CameraUpdateFactory.newLatLngBounds(mapBounds, mapMargin).run {
+                googleMap.moveCamera(this)
+            }
+
+            googleMap.addMarker {
+                position(spotPosition)
+                title(spot.originalName)
+            }
+        }
+
     }
 
     override fun onStop() {
@@ -107,7 +130,11 @@ class EntryDetailsFragment : Fragment() {
 
         // Persist changes
         if (::currentSpot.isInitialized) {
-            currentSpot.let { viewModel.updateSpotData(it) }
+            currentSpot.let {
+                viewModel.updateSpotData(it.apply {
+                    customName = editTextCustomName.text.toString()
+                })
+            }
         }
     }
 }

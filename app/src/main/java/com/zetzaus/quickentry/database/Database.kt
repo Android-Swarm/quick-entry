@@ -44,10 +44,6 @@ class FirebaseHandler private constructor(context: Context) {
     private val database by lazy { Firebase.database.reference }
     private val dao = EntrySpotDatabase.createDatabase(context).entrySpotDao
 
-    /** Extension function that creates a single [String] unique ID. The ID is a combination
-     * of the URL ID and the original location name. */
-    private fun EntrySpot.createSingleId() = urlId + originalName
-
     /**
      * Tries to update [EntrySpot] first before doing an insertion. The update mechanism is similar
      * to the local [EntrySpot] update operation.
