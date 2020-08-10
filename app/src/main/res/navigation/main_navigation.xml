@@ -45,6 +45,9 @@
                 android:name="shouldPersist"
                 android:defaultValue="false" />
         </action>
+        <action
+            android:id="@+id/action_mainFragment_to_entryDetailsFragment"
+            app:destination="@id/entryDetailsFragment" />
     </fragment>
     <activity
         android:id="@+id/webActivity"
@@ -70,5 +73,26 @@
         <action
             android:id="@+id/action_barcodeFragment_to_scanFragment"
             app:destination="@id/scanFragment" />
+    </fragment>
+    <fragment
+        android:id="@+id/entryDetailsFragment"
+        android:name="com.zetzaus.quickentry.ui.EntryDetailsFragment"
+        android:label="fragment_entry_details"
+        tools:layout="@layout/fragment_entry_details" >
+        <argument
+            android:name="urlId"
+            app:argType="string" />
+        <argument
+            android:name="oiginalName"
+            app:argType="string" />
+        <action
+            android:id="@+id/action_entryDetailsFragment_to_webActivity"
+            app:destination="@id/webActivity"
+            app:popUpTo="@id/entryDetailsFragment"
+            app:popUpToInclusive="true">
+            <argument
+                android:name="shouldPersist"
+                android:defaultValue="false" />
+        </action>
     </fragment>
 </navigation>

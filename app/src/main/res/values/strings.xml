@@ -9,6 +9,7 @@
 
     <string name="hint_search_edit_text">Search location here</string>
     <string name="hint_nric">Your NRIC</string>
+    <string name="hint_custom_name">Preferred location name</string>
 
     <string name="no_location_yet">---</string>
 
@@ -27,7 +28,13 @@
     <string name="label_barcode_title_section">Your Barcode</string>
     <string name="label_barcode_none">No barcode saved yet!</string>
 
+    <string name="label_location">Location</string>
+    <string name="label_status">Status</string>
+    <string name="label_original_name">Original Name</string>
+
     <string name="button_scan_barcode">Scan barcode</string>
+    <string name="button_check_in">Check in</string>
+    <string name="button_check_out">Check out</string>
 
     <string name="menu_credit">Credit</string>
     <string name="menu_barcode">My Barcode</string>

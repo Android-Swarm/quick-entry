@@ -238,8 +238,7 @@ class ScanFragment : Fragment() {
             viewModel.lastLocation.value
         )
 
-        viewFinder?.findNavController()
-            ?.navigateOnce(R.id.scanFragment, action)
+        fragmentNavController?.navigateOnce(R.id.scanFragment, action)
     }
 
     private fun processCode39(text: String) {
@@ -251,10 +250,15 @@ class ScanFragment : Fragment() {
         Snackbar.make(root, R.string.snack_bar_found_nric, Snackbar.LENGTH_LONG)
             .setAction(R.string.snack_bar_action_view) {
                 Log.d(TAG, "Pressed the View action on Snackbar")
-                viewFinder?.findNavController()
-                    ?.navigateOnce(R.id.scanFragment, R.id.action_scanFragment_to_barcodeFragment)
+                fragmentNavController?.navigateOnce(
+                    R.id.scanFragment,
+                    R.id.action_scanFragment_to_barcodeFragment
+                )
             }.show()
     }
+
+    private val fragmentNavController
+        get() = activity?.findNavController(R.id.navHostFragment)
 
     companion object {
         const val REQUEST_PERMISSION_CODE = 1024

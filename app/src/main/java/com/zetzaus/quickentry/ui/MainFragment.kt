@@ -109,7 +109,7 @@ class MainFragment : Fragment() {
 
         override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): EntrySpotViewHolder {
             return LayoutInflater.from(parent.context).inflate(
-                R.layout.entry_item_name,
+                R.layout.item_entry_spot,
                 parent,
                 false
             ).run {
@@ -161,12 +161,21 @@ class MainFragment : Fragment() {
                         }
                     }
 
-//                    When long-clicked, go to the personalization fragment
-//                    setOnLongClickListener {
-//
-//                    }
+                    // When long-clicked, go to the EntryDetailsFragment
+                    setOnLongClickListener {
+                        MainFragmentDirections
+                            .actionMainFragmentToEntryDetailsFragment(
+                                spot.entrySpot.urlId,
+                                spot.entrySpot.originalName
+                            )
+                            .run {
+                                view?.findNavController()?.navigate(this)
+                                true
+                            }
+                    }
                 }
             }
+
 
             fun updateDistanceTextAndIndicator(spot: DistancedSpot) {
                 parent.findViewById<MaterialTextView>(R.id.textDistance).text =
