@@ -6,11 +6,15 @@
     android:layout_height="match_parent"
     tools:context=".ui.ScanFragment">
 
-    <androidx.camera.view.PreviewView
-        android:id="@+id/viewFinder"
-        android:layout_width="0dp"
-        android:layout_height="0dp"
-        app:layout_constraintBottom_toTopOf="@id/linearLayout"
+    <com.otaliastudios.cameraview.CameraView
+        android:id="@+id/cameraView"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        app:cameraAudio="off"
+        app:cameraEngine="camera2"
+        app:cameraExperimental="true"
+        app:cameraPreview="glSurface"
+        app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
@@ -19,15 +23,14 @@
     <androidx.constraintlayout.widget.ConstraintLayout
         android:id="@+id/linearLayout"
         android:layout_width="match_parent"
-        android:layout_height="0dp"
+        android:layout_height="wrap_content"
+        android:background="@android:color/white"
         android:gravity="center"
         android:orientation="vertical"
-        android:padding="8dp"
+        android:paddingVertical="16dp"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/viewFinder"
-        app:layout_constraintVertical_weight="1">
+        app:layout_constraintStart_toStartOf="parent">
 
         <com.google.android.material.textview.MaterialTextView
             android:id="@+id/textScanStatus"

@@ -1,37 +1,47 @@
 package com.zetzaus.quickentry.camera
 
-import androidx.annotation.experimental.UseExperimental
-import androidx.camera.core.ExperimentalGetImage
-import androidx.camera.core.ImageAnalysis
-import androidx.camera.core.ImageProxy
+import com.google.android.gms.tasks.Task
 import com.google.mlkit.vision.barcode.Barcode
 import com.google.mlkit.vision.barcode.BarcodeScannerOptions
 import com.google.mlkit.vision.barcode.BarcodeScanning
 import com.google.mlkit.vision.common.InputImage
+import kotlinx.coroutines.tasks.await
 
-class BarcodeAnalyzer(
-    private val options: BarcodeScannerOptions,
-    private val onSuccess: (List<Barcode>) -> Unit,
-    private val onFailure: (Exception) -> Unit
-) : ImageAnalysis.Analyzer {
+//@Deprecated(message = "CameraX has been replaced with third party library")
+//class BarcodeAnalyzer(
+//    private val options: BarcodeScannerOptions,
+//    private val onSuccess: (List<Barcode>) -> Unit,
+//    private val onFailure: (Exception) -> Unit
+//) : ImageAnalysis.Analyzer {
+//
+//    @UseExperimental(markerClass = ExperimentalGetImage::class)
+//    override fun analyze(imageProxy: ImageProxy) {
+//        val mediaImage = imageProxy.image
+//
+//        if (mediaImage != null) {
+//            val image = InputImage.fromMediaImage(mediaImage, imageProxy.imageInfo.rotationDegrees)
+//
+//            scanBarcode(image, options) {
+//                if (it.isSuccessful) {
+//                    onSuccess(it.result!!)
+//                } else {
+//                    onFailure(it.exception!!)
+//                }
+//                imageProxy.close()
+//            }
+//        }
+//    }
+//}
 
-    @UseExperimental(markerClass = ExperimentalGetImage::class)
-    override fun analyze(imageProxy: ImageProxy) {
-        val mediaImage = imageProxy.image
+fun scanBarcode(
+    input: InputImage,
+    options: BarcodeScannerOptions,
+    onComplete: (Task<List<Barcode>>) -> Unit
+) = BarcodeScanning.getClient(options)
+    .process(input)
+    .addOnCompleteListener(onComplete)
 
-        if (mediaImage != null) {
-            val image = InputImage.fromMediaImage(mediaImage, imageProxy.imageInfo.rotationDegrees)
-
-            val scanner = BarcodeScanning.getClient(options)
-            scanner.process(image)
-                .addOnCompleteListener {
-                    if (it.isSuccessful) {
-                        onSuccess(it.result!!)
-                    } else {
-                        onFailure(it.exception!!)
-                    }
-                    imageProxy.close()
-                }
-        }
-    }
-}
+suspend fun scanBarcodeSynchronous(
+    input: InputImage,
+    options: BarcodeScannerOptions
+): List<Barcode> = scanBarcode(input, options) {}.await()

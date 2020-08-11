@@ -2,6 +2,7 @@ package com.zetzaus.quickentry.ui
 
 import android.Manifest
 import android.content.pm.PackageManager
+import android.media.Image
 import android.os.Bundle
 import android.text.Editable
 import android.text.TextWatcher
@@ -9,11 +10,6 @@ import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import androidx.camera.core.Camera
-import androidx.camera.core.CameraSelector
-import androidx.camera.core.ImageAnalysis
-import androidx.camera.core.Preview
-import androidx.camera.lifecycle.ProcessCameraProvider
 import androidx.core.content.ContextCompat
 import androidx.core.view.isVisible
 import androidx.fragment.app.Fragment
@@ -24,8 +20,9 @@ import androidx.navigation.findNavController
 import com.google.android.material.snackbar.Snackbar
 import com.google.mlkit.vision.barcode.Barcode
 import com.google.mlkit.vision.barcode.BarcodeScannerOptions
+import com.google.mlkit.vision.common.InputImage
 import com.zetzaus.quickentry.R
-import com.zetzaus.quickentry.camera.BarcodeAnalyzer
+import com.zetzaus.quickentry.camera.scanBarcodeSynchronous
 import com.zetzaus.quickentry.database.NricRepository
 import com.zetzaus.quickentry.extensions.TAG
 import com.zetzaus.quickentry.extensions.isNRICBarcode
@@ -35,16 +32,19 @@ import kotlinx.android.synthetic.main.fragment_scan.*
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.runBlocking
 import java.util.concurrent.ExecutorService
 import java.util.concurrent.Executors
 
 class ScanFragment : Fragment() {
 
-    private var preview: Preview? = null
-    private var imageAnalysis: ImageAnalysis? = null
-    private var camera: Camera? = null
     private val acceptableBarcodeFormats =
         listOf(Barcode.FORMAT_CODE_39, Barcode.FORMAT_QR_CODE)
+
+    // Which type of barcodes to recognize
+    private val barcodeOption = BarcodeScannerOptions.Builder()
+        .setBarcodeFormats(acceptableBarcodeFormats[0], acceptableBarcodeFormats[1])
+        .build()
 
     private var resetTextJob: Job? = null
 
@@ -127,82 +127,60 @@ class ScanFragment : Fragment() {
     }
 
     private fun startCamera() {
-        val cameraProviderFuture = ProcessCameraProvider.getInstance(this.requireContext())
+//        val cameraProviderFuture = ProcessCameraProvider.getInstance(this.requireContext())
 
-        cameraProviderFuture.addListener(Runnable {
-            val cameraProvider = cameraProviderFuture.get()
+        // What to do when analysis encountered exception
+        val onFailure: (Exception) -> Unit = {
+            Log.e(
+                TAG,
+                "Encountered exception when analyzing QR code: ${it.localizedMessage}",
+                it
+            )
+        }
 
-            preview = Preview.Builder().build()
-
-            // What to do when analysis encountered exception
-            val onFailure: (Exception) -> Unit = {
-                Log.e(
-                    TAG,
-                    "Encountered exception when analyzing QR code: ${it.localizedMessage}",
-                    it
-                )
-            }
-
-            // What to do when a barcode is recognized
-            val onSuccess: (List<Barcode>) -> Unit = { barcodes ->
-                val barcodesOfInterest = barcodes.filter { it.format in acceptableBarcodeFormats }
-                    .also {
-                        it.firstOrNull()?.let { detected ->
-                            Log.d(TAG, "Detected valid barcode of format ${detected.format}")
-                            updateTextAndProgressBar(detected.displayValue ?: "")
-                        }
-                    }
-
-                val validBarcode = barcodesOfInterest.firstOrNull {
-                    return@firstOrNull when (it.format) {
-                        Barcode.FORMAT_CODE_39 -> it.displayValue?.isNRICBarcode() ?: false
-                        Barcode.FORMAT_QR_CODE -> it.url?.url?.isSafeEntryCodeURL() ?: false
-                        else -> false
+        // What to do when a barcode is recognized
+        val onSuccess: (List<Barcode>) -> Unit = { barcodes ->
+            val barcodesOfInterest = barcodes.filter { it.format in acceptableBarcodeFormats }
+                .also {
+                    it.firstOrNull()?.let { detected ->
+                        Log.d(TAG, "Detected valid barcode of format ${detected.format}")
+                        updateTextAndProgressBar(detected.displayValue ?: "")
                     }
                 }
 
-                validBarcode?.let { barcode ->
-                    when (barcode.format) {
-                        Barcode.FORMAT_QR_CODE -> barcode.url?.url?.let { processQrCode(it) }
-                        Barcode.FORMAT_CODE_39 -> barcode.displayValue?.let { processCode39(it) }
-                        else -> Unit
+            val validBarcode = barcodesOfInterest.firstOrNull {
+                return@firstOrNull when (it.format) {
+                    Barcode.FORMAT_CODE_39 -> it.displayValue?.isNRICBarcode() ?: false
+                    Barcode.FORMAT_QR_CODE -> it.url?.url?.isSafeEntryCodeURL() ?: false
+                    else -> false
+                }
+            }
+
+            validBarcode?.let { barcode ->
+                when (barcode.format) {
+                    Barcode.FORMAT_QR_CODE -> barcode.url?.url?.let { processQrCode(it) }
+                    Barcode.FORMAT_CODE_39 -> barcode.displayValue?.let { processCode39(it) }
+                    else -> Unit
+                }
+            }
+        }
+
+        cameraView.setLifecycleOwner(viewLifecycleOwner)
+        cameraView.addFrameProcessor {
+            // This part is run in a background thread according to documentation
+            if (it.dataClass == Image::class.java) {
+                val image = InputImage.fromMediaImage(it.getData() as Image, it.rotationToUser)
+
+                runBlocking {
+                    try {
+                        val result = scanBarcodeSynchronous(image, barcodeOption)
+                        onSuccess(result)
+                    } catch (e: Exception) {
+                        onFailure(e)
                     }
                 }
             }
-
-            // Which type of barcodes to recognize
-            val barcodeOption = BarcodeScannerOptions.Builder()
-                .setBarcodeFormats(acceptableBarcodeFormats[0], acceptableBarcodeFormats[1])
-                .build()
-
-            imageAnalysis = ImageAnalysis.Builder().build()
-                .apply {
-                    setAnalyzer(
-                        cameraExecutor,
-                        BarcodeAnalyzer(barcodeOption, onSuccess, onFailure)
-                    )
-                }
-
-            val cameraSelector = CameraSelector.Builder()
-                .requireLensFacing(CameraSelector.LENS_FACING_BACK)
-                .build()
-
-            try {
-                cameraProvider.unbindAll()
-
-                camera = cameraProvider.bindToLifecycle(
-                    this,
-                    cameraSelector,
-                    preview, imageAnalysis
-                )
-
-                val surfaceProvider = viewFinder.createSurfaceProvider()
-                preview?.setSurfaceProvider(surfaceProvider)
-            } catch (e: Exception) {
-                Log.e(TAG, "Caught exception when starting camera", e)
-            }
-        }, ContextCompat.getMainExecutor(this.activity))
-
+        }
     }
 
     private fun updateTextAndProgressBar(text: String) {
