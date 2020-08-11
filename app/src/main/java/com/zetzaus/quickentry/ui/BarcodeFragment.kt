@@ -29,9 +29,9 @@ class BarcodeFragment : Fragment() {
             // Load saved barcode if any
             try {
                 barcodeRaw = NricRepository(requireContext()).getBarcode()
-                Log.d(
-                    TAG, "Found saved barcode. First 4: ${barcodeRaw?.slice(0..3)}"
-                )
+                barcodeRaw?.let {
+                    Log.d(TAG, "Found saved barcode. First 4: ${it.slice(0..3)}")
+                }
             } catch (e: Exception) {
                 Log.e(TAG, "Error when fetching barcode: ", e)
             }

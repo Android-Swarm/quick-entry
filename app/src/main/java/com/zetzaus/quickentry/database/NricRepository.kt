@@ -16,17 +16,18 @@ class NricRepository(private val context: Context) {
             }
         }
 
-    fun getBarcode(): String {
+    fun getBarcode(): String? {
         val encryptedBarcode = sharedPreference.getString(BARCODE_KEY, "")!!
         val initVector = sharedPreference.getString(IV_KEY, "")!!
 
 //        Log.d("NricRepository", encryptedBarcode)
 //        Log.d("NricRepository", initVector)
 
-        return CryptoManager.decrypt(
-            encryptedBarcode,
-            initVector
-        )
+        return if (encryptedBarcode.isEmpty()) null else
+            CryptoManager.decrypt(
+                encryptedBarcode,
+                initVector
+            )
     }
 
     companion object {
