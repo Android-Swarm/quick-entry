@@ -8,11 +8,14 @@ import com.zetzaus.quickentry.database.EntrySpot
 import com.zetzaus.quickentry.database.FirebaseHandler
 import com.zetzaus.quickentry.database.toLocation
 import kotlinx.coroutines.launch
+import kotlin.math.roundToInt
 
 class MainFragmentViewModel(application: Application) : EntryViewModel(application) {
     private val liveQuery = MutableLiveData<String>("")
     private val liveLocation = MutableLiveData<Location?>(null)
     private val firebase = FirebaseHandler.getInstance(application.baseContext)
+
+    private var previousList: List<DistancedSpot>? = null
 
     init {
         // Fetch data from Firebase
@@ -52,7 +55,7 @@ class MainFragmentViewModel(application: Application) : EntryViewModel(applicati
     private infix fun Float.roundTo(decimalPlace: Int): Float {
         var multiplier = 1.0f
         repeat(decimalPlace) { multiplier *= 10 }
-        return Math.round(this * multiplier) / multiplier
+        return (this * multiplier).roundToInt() / multiplier
     }
 
     /**
@@ -67,7 +70,17 @@ class MainFragmentViewModel(application: Application) : EntryViewModel(applicati
      *
      * @param location The new location to be set as the current location.
      */
-    fun updateLocation(location: Location) = liveLocation.postValue(location)
+    fun updateLocation(location: Location) {
+        previousList = liveDistancedSpots.value?.run { slice(0..lastIndex) }
+        liveLocation.postValue(location)
+    }
+
+    /**
+     * First location update means the first location update for a set of list items. This means
+     * that this event may happen again when the list items changes (such as by query string).
+     */
+    val isFirstLocationUpdate
+        get() = previousList?.all { it.distance == null } ?: false
 
     companion object {
         val TAG = MainFragmentViewModel::class.simpleName

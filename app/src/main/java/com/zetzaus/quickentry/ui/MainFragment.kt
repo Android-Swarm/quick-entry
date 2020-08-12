@@ -93,7 +93,12 @@ class MainFragment : Fragment() {
         })
 
         viewModel.liveDistancedSpots.observe(viewLifecycleOwner) { spots ->
-            spotAdapter.submitList(spots)
+            spotAdapter.submitList(spots) {
+                if (viewModel.isFirstLocationUpdate) {
+                    Log.d(TAG, "First location update, scrolling to the top")
+                    recyclerView.scrollToPosition(0)
+                }
+            }
         }
 
         sharedModel.lastLocation.observe(viewLifecycleOwner) { currentLocation ->
