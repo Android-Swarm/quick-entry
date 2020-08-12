@@ -28,21 +28,25 @@ class MainFragmentViewModel(application: Application) : EntryViewModel(applicati
     }
 
     val liveDistancedSpots =
-        Transformations.switchMap(liveLocation) { liveEntrySpots.toDistancedSpot(it) }
+        Transformations.switchMap(liveLocation) { liveEntrySpots.toSortedDistancedSpot(it) }
 
     /**
-     * This extension function wraps the [EntrySpot] in a [DistancedSpot] with the appropriate distance.
-     * The distance should be submitted by calling [updateLocation].
+     * This extension function wraps the [EntrySpot] in a [DistancedSpot] with the appropriate
+     * distance. The distance should be submitted by calling [updateLocation].
+     *
+     * The entries will be sorted ascending to the distance, and checked-in
+     * location will be placed on the beginning.
      *
      */
-    private fun LiveData<List<EntrySpot>>.toDistancedSpot(location: Location?) =
+    private fun LiveData<List<EntrySpot>>.toSortedDistancedSpot(location: Location?) =
         this.map { entryList ->
             entryList.map {
                 DistancedSpot(
                     it,
                     location?.distanceTo(it.location.toLocation())?.roundTo(2)
                 )
-            }
+            }.sortedBy { it.distance ?: Float.MAX_VALUE }  // Sort by distance first
+                .sortedByDescending { it.entrySpot.checkedIn }// Sort by checked in afterwards
         }
 
     private infix fun Float.roundTo(decimalPlace: Int): Float {

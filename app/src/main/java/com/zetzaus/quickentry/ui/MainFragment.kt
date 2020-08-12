@@ -31,8 +31,10 @@ class MainFragment : Fragment() {
     private lateinit var viewModel: MainFragmentViewModel
 
     private val entrySpotCallback = object : DiffUtil.ItemCallback<DistancedSpot>() {
+        /** 2 [DistancedSpot] objects are the same if the `EntrySpot`'s primary key is the same.*/
         override fun areItemsTheSame(oldItem: DistancedSpot, newItem: DistancedSpot): Boolean {
-            return oldItem.entrySpot.urlId == newItem.entrySpot.urlId
+            return oldItem.entrySpot.urlId == newItem.entrySpot.urlId &&
+                    oldItem.entrySpot.originalName == newItem.entrySpot.originalName
         }
 
         override fun areContentsTheSame(oldItem: DistancedSpot, newItem: DistancedSpot): Boolean {
@@ -68,6 +70,11 @@ class MainFragment : Fragment() {
         super.onViewCreated(view, savedInstanceState)
         viewModel = ViewModelProvider(this)[MainFragmentViewModel::class.java]
 
+        recyclerView.apply {
+            adapter = spotAdapter
+            layoutManager = LinearLayoutManager(this@MainFragment.requireContext())
+        }
+
         scanFloatingActionButton.setOnClickListener {
             it.findNavController().navigate(R.id.action_mainFragment_to_scanFragment)
         }
@@ -86,27 +93,16 @@ class MainFragment : Fragment() {
         })
 
         viewModel.liveDistancedSpots.observe(viewLifecycleOwner) { spots ->
-            spotAdapter.submitList(spots.sortedBy { it.distance ?: Float.MAX_VALUE })
+            spotAdapter.submitList(spots)
         }
 
         sharedModel.lastLocation.observe(viewLifecycleOwner) { currentLocation ->
-            Log.d(
-                TAG,
-                "Observed location change: " +
-                        "${currentLocation.latitude} ${currentLocation.longitude}" +
-                        ", refreshing list..."
-            )
+            Log.d(TAG, "Observed location change, refreshing list...")
             viewModel.updateLocation(currentLocation)
-        }
-
-        recyclerView.apply {
-            adapter = spotAdapter
-            layoutManager = LinearLayoutManager(this@MainFragment.requireContext())
-            // itemAnimator = null
         }
     }
 
-    inner class EntrySpotAdapter(callback: DiffUtil.ItemCallback<DistancedSpot>) :
+    private inner class EntrySpotAdapter(callback: DiffUtil.ItemCallback<DistancedSpot>) :
         ListAdapter<DistancedSpot, EntrySpotAdapter.EntrySpotViewHolder>(callback) {
 
         override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): EntrySpotViewHolder {
@@ -137,7 +133,7 @@ class MainFragment : Fragment() {
             }
         }
 
-        inner class EntrySpotViewHolder(private val parent: View) :
+        private inner class EntrySpotViewHolder(private val parent: View) :
             RecyclerView.ViewHolder(parent) {
 
             fun bind(spot: DistancedSpot) {
@@ -183,7 +179,6 @@ class MainFragment : Fragment() {
                     }
                 }
             }
-
 
             fun updateDistanceTextAndIndicator(spot: DistancedSpot) {
                 parent.findViewById<MaterialTextView>(R.id.textDistance).text =
