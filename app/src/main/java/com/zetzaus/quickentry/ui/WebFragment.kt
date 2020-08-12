@@ -127,15 +127,16 @@ class WebFragment : Fragment() {
             when {
                 url.isSafeEntryURL() -> Jsoup.parse(content)
                     .getElementById("location-text")
-                    .text()
-                    .run {
+                    ?.text()
+                    ?.run {
                         processSafeEntry(url, this)
                     }
 
                 url.isSafeEntryCompletionURL() -> Jsoup.parse(content)
-                    .getElementsByClass("building-name ng-star-inserted")[0]
-                    .text()
-                    .run {
+                    .getElementsByClass("building-name ng-star-inserted")
+                    .getOrNull(0)
+                    ?.text()
+                    ?.run {
                         Log.d(TAG, "Completed transaction for the location $this")
                         checkInOrOut(content, url, this)
                     }

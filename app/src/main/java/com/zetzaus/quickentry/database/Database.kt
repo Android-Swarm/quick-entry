@@ -52,7 +52,7 @@ class FirebaseHandler private constructor(context: Context) {
      */
     suspend fun upsert(spot: EntrySpot) = withContext(Dispatchers.IO) {
         Log.d(TAG, "Start of upsert() method")
-        database.child(ROOT).child(spot.createSingleId())
+        database.child(ROOT).child(spot.firebaseSingleId())
             .addListenerForSingleValueEvent(object : ValueEventListener {
                 override fun onCancelled(error: DatabaseError) {
                     Log.e(TAG, "Failed to read in save(): ", error.toException())
@@ -74,7 +74,7 @@ class FirebaseHandler private constructor(context: Context) {
      * @param spot The new data to write.
      */
     private fun overwrite(spot: EntrySpot) {
-        database.child(ROOT).child(spot.createSingleId()).setValue(spot)
+        database.child(ROOT).child(spot.firebaseSingleId()).setValue(spot)
             .addOnCompleteListener {
                 Log.d(
                     TAG, if (it.isSuccessful) {
@@ -119,6 +119,13 @@ class FirebaseHandler private constructor(context: Context) {
             }
         })
     }
+
+    /**
+     * Returns a valid Firebase Database path. The path must not contain '.', '#', '$', ']', or '['.
+     *
+     */
+    private fun EntrySpot.firebaseSingleId() =
+        this.createSingleId().replace(Regex("""[\[\].#$]"""), "")
 
     companion object {
         val TAG = FirebaseHandler::class.simpleName
