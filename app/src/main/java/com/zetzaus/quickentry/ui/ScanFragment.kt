@@ -17,12 +17,13 @@ import androidx.fragment.app.activityViewModels
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.observe
 import androidx.navigation.findNavController
+import com.google.android.gms.tasks.Tasks
 import com.google.android.material.snackbar.Snackbar
 import com.google.mlkit.vision.barcode.Barcode
 import com.google.mlkit.vision.barcode.BarcodeScannerOptions
 import com.google.mlkit.vision.common.InputImage
 import com.zetzaus.quickentry.R
-import com.zetzaus.quickentry.camera.scanBarcodeSynchronous
+import com.zetzaus.quickentry.camera.scanBarcode
 import com.zetzaus.quickentry.database.NricRepository
 import com.zetzaus.quickentry.extensions.TAG
 import com.zetzaus.quickentry.extensions.isNRICBarcode
@@ -32,7 +33,6 @@ import kotlinx.android.synthetic.main.fragment_scan.*
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.runBlocking
 import java.util.concurrent.ExecutorService
 import java.util.concurrent.Executors
 
@@ -140,6 +140,7 @@ class ScanFragment : Fragment() {
 
         // What to do when a barcode is recognized
         val onSuccess: (List<Barcode>) -> Unit = { barcodes ->
+            // Get the first only code 39 or QR code
             val barcodesOfInterest = barcodes.filter { it.format in acceptableBarcodeFormats }
                 .also {
                     it.firstOrNull()?.let { detected ->
@@ -148,6 +149,7 @@ class ScanFragment : Fragment() {
                     }
                 }
 
+            // Get the first only NRIC barcode and SafeEntry URL
             val validBarcode = barcodesOfInterest.firstOrNull {
                 return@firstOrNull when (it.format) {
                     Barcode.FORMAT_CODE_39 -> it.displayValue?.isNRICBarcode() ?: false
@@ -158,7 +160,16 @@ class ScanFragment : Fragment() {
 
             validBarcode?.let { barcode ->
                 when (barcode.format) {
-                    Barcode.FORMAT_QR_CODE -> barcode.url?.url?.let { processQrCode(it) }
+                    Barcode.FORMAT_QR_CODE -> {
+                        // Remove all processors if it already sure to navigate.
+                        // !! DO NOT REMOVE !!
+                        // This is required to stop processing the next frames,
+                        // otherwise segmentation fault may happen.
+                        cameraView.clearFrameProcessors()
+                        Log.d(TAG, "Going to navigate, removed processors")
+
+                        barcode.url?.url?.let { processQrCode(it) }
+                    }
                     Barcode.FORMAT_CODE_39 -> barcode.displayValue?.let { processCode39(it) }
                     else -> Unit
                 }
@@ -170,14 +181,14 @@ class ScanFragment : Fragment() {
             // This part is run in a background thread according to documentation
             if (it.dataClass == Image::class.java) {
                 val image = InputImage.fromMediaImage(it.getData() as Image, it.rotationToUser)
+                Log.d(TAG, "Converted frame into InputImage")
 
-                runBlocking {
-                    try {
-                        val result = scanBarcodeSynchronous(image, barcodeOption)
-                        onSuccess(result)
-                    } catch (e: Exception) {
-                        onFailure(e)
-                    }
+                try {
+                    val result = Tasks.await(scanBarcode(image, barcodeOption))
+                    Log.d(TAG, "Processing result received, passing to onSuccess()")
+                    onSuccess(result)
+                } catch (e: Exception) {
+                    onFailure(e)
                 }
             }
         }
@@ -217,6 +228,7 @@ class ScanFragment : Fragment() {
         )
 
         fragmentNavController?.navigateOnce(R.id.scanFragment, action)
+
     }
 
     private fun processCode39(text: String) {

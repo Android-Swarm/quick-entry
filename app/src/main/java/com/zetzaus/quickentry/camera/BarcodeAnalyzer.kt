@@ -1,6 +1,5 @@
 package com.zetzaus.quickentry.camera
 
-import com.google.android.gms.tasks.Task
 import com.google.mlkit.vision.barcode.Barcode
 import com.google.mlkit.vision.barcode.BarcodeScannerOptions
 import com.google.mlkit.vision.barcode.BarcodeScanning
@@ -35,13 +34,11 @@ import kotlinx.coroutines.tasks.await
 
 fun scanBarcode(
     input: InputImage,
-    options: BarcodeScannerOptions,
-    onComplete: (Task<List<Barcode>>) -> Unit
+    options: BarcodeScannerOptions
 ) = BarcodeScanning.getClient(options)
     .process(input)
-    .addOnCompleteListener(onComplete)
 
-suspend fun scanBarcodeSynchronous(
-    input: InputImage,
-    options: BarcodeScannerOptions
-): List<Barcode> = scanBarcode(input, options) {}.await()
+//suspend fun scanBarcodeSynchronous(
+//    input: InputImage,
+//    options: BarcodeScannerOptions
+//): List<Barcode> = scanBarcode(input, options).await()

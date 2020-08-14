@@ -4,6 +4,7 @@ import android.annotation.SuppressLint
 import android.content.Intent
 import android.content.pm.PackageManager
 import android.location.Location
+import android.os.Build
 import android.os.Bundle
 import android.util.Log
 import android.view.LayoutInflater
@@ -37,6 +38,8 @@ class WebFragment : Fragment() {
     ): View? {
         val root = inflater.inflate(R.layout.fragment_web, container, false)
 
+        Log.d(TAG, "Device ABI: ${Build.CPU_ABI}")
+        
         requireArguments().apply {
             url = getString(URL_KEY)!!
             fromCode = getBoolean(FROM_CODE_KEY)
@@ -109,6 +112,7 @@ class WebFragment : Fragment() {
 
     override fun onDestroy() {
         super.onDestroy()
+        Log.d(TAG, "onDestroy() of WebFragment")
         setSubtitle(null)
     }
 

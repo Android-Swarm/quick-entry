@@ -57,6 +57,7 @@ class MainFragment : Fragment() {
         }
     }
 
+    /** This fragment's [RecyclerView.Adapter].*/
     private val spotAdapter = EntrySpotAdapter(entrySpotCallback)
 
     override fun onCreateView(
