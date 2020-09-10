@@ -53,6 +53,53 @@ class ScanFragment : Fragment() {
     private lateinit var root: View
     private lateinit var cameraExecutor: ExecutorService
 
+    // What to do when analysis encountered exception
+    private val onFailure: (Exception) -> Unit = {
+        Log.e(
+            TAG,
+            "Encountered exception when analyzing QR code: ${it.localizedMessage}",
+            it
+        )
+    }
+
+    // What to do when a barcode is recognized
+    private val onSuccess: (List<Barcode>) -> Unit = { barcodes ->
+        // Get the first only code 39 or QR code
+        val barcodesOfInterest = barcodes.filter { it.format in acceptableBarcodeFormats }
+            .also {
+                it.firstOrNull()?.let { detected ->
+                    Log.d(TAG, "Detected valid barcode of format ${detected.format}")
+                    updateTextAndProgressBar(detected.displayValue ?: "")
+                }
+            }
+
+        // Get the first only NRIC barcode and SafeEntry URL
+        val validBarcode = barcodesOfInterest.firstOrNull {
+            return@firstOrNull when (it.format) {
+                Barcode.FORMAT_CODE_39 -> it.displayValue?.isNRICBarcode() ?: false
+                Barcode.FORMAT_QR_CODE -> it.url?.url?.isSafeEntryCodeURL() ?: false
+                else -> false
+            }
+        }
+
+        validBarcode?.let { barcode ->
+            when (barcode.format) {
+                Barcode.FORMAT_QR_CODE -> {
+                    // Remove all processors if it already sure to navigate.
+                    // !! DO NOT REMOVE !!
+                    // This is required to stop processing the next frames,
+                    // otherwise segmentation fault may happen.
+                    cameraView.clearFrameProcessors()
+                    Log.d(TAG, "Going to navigate, removed processors")
+
+                    barcode.url?.url?.let { processQrCode(it) }
+                }
+                Barcode.FORMAT_CODE_39 -> barcode.displayValue?.let { processCode39(it) }
+                else -> Unit
+            }
+        }
+    }
+
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
@@ -96,6 +143,27 @@ class ScanFragment : Fragment() {
         }
     }
 
+    override fun onResume() {
+        super.onResume()
+
+        cameraView.addFrameProcessor {
+            // This part is run in a background thread according to documentation
+            if (it.dataClass == Image::class.java) {
+                val image = InputImage.fromMediaImage(it.getData() as Image, it.rotationToUser)
+                Log.d(TAG, "Converted frame into InputImage")
+
+                try {
+                    val result = Tasks.await(scanBarcode(image, barcodeOption))
+                    Log.d(TAG, "Processing result received, passing to onSuccess()")
+                    onSuccess(result)
+                } catch (e: Exception) {
+                    onFailure(e)
+                }
+            }
+        }
+
+    }
+
     override fun onRequestPermissionsResult(
         requestCode: Int,
         permissions: Array<out String>,
@@ -119,6 +187,12 @@ class ScanFragment : Fragment() {
         }
     }
 
+    override fun onPause() {
+        super.onPause()
+
+        cameraView.clearFrameProcessors()
+    }
+
     private fun allPermissionsGranted() = PERMISSIONS.all {
         ContextCompat.checkSelfPermission(
             this.requireContext(),
@@ -127,71 +201,7 @@ class ScanFragment : Fragment() {
     }
 
     private fun startCamera() {
-//        val cameraProviderFuture = ProcessCameraProvider.getInstance(this.requireContext())
-
-        // What to do when analysis encountered exception
-        val onFailure: (Exception) -> Unit = {
-            Log.e(
-                TAG,
-                "Encountered exception when analyzing QR code: ${it.localizedMessage}",
-                it
-            )
-        }
-
-        // What to do when a barcode is recognized
-        val onSuccess: (List<Barcode>) -> Unit = { barcodes ->
-            // Get the first only code 39 or QR code
-            val barcodesOfInterest = barcodes.filter { it.format in acceptableBarcodeFormats }
-                .also {
-                    it.firstOrNull()?.let { detected ->
-                        Log.d(TAG, "Detected valid barcode of format ${detected.format}")
-                        updateTextAndProgressBar(detected.displayValue ?: "")
-                    }
-                }
-
-            // Get the first only NRIC barcode and SafeEntry URL
-            val validBarcode = barcodesOfInterest.firstOrNull {
-                return@firstOrNull when (it.format) {
-                    Barcode.FORMAT_CODE_39 -> it.displayValue?.isNRICBarcode() ?: false
-                    Barcode.FORMAT_QR_CODE -> it.url?.url?.isSafeEntryCodeURL() ?: false
-                    else -> false
-                }
-            }
-
-            validBarcode?.let { barcode ->
-                when (barcode.format) {
-                    Barcode.FORMAT_QR_CODE -> {
-                        // Remove all processors if it already sure to navigate.
-                        // !! DO NOT REMOVE !!
-                        // This is required to stop processing the next frames,
-                        // otherwise segmentation fault may happen.
-                        cameraView.clearFrameProcessors()
-                        Log.d(TAG, "Going to navigate, removed processors")
-
-                        barcode.url?.url?.let { processQrCode(it) }
-                    }
-                    Barcode.FORMAT_CODE_39 -> barcode.displayValue?.let { processCode39(it) }
-                    else -> Unit
-                }
-            }
-        }
-
         cameraView.setLifecycleOwner(viewLifecycleOwner)
-        cameraView.addFrameProcessor {
-            // This part is run in a background thread according to documentation
-            if (it.dataClass == Image::class.java) {
-                val image = InputImage.fromMediaImage(it.getData() as Image, it.rotationToUser)
-                Log.d(TAG, "Converted frame into InputImage")
-
-                try {
-                    val result = Tasks.await(scanBarcode(image, barcodeOption))
-                    Log.d(TAG, "Processing result received, passing to onSuccess()")
-                    onSuccess(result)
-                } catch (e: Exception) {
-                    onFailure(e)
-                }
-            }
-        }
     }
 
     private fun updateTextAndProgressBar(text: String) {

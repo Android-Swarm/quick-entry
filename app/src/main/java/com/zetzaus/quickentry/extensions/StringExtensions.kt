@@ -10,7 +10,7 @@ infix fun String.matches(pattern: String) = Regex(pattern).matches(this)
 
 /** Returns `true` if the [String] is a raw SafeEntry URL scanned from a QR code. */
 fun String.isSafeEntryCodeURL() =
-    this matches """^https://temperaturepass\.ndi-api\.gov\.sg/login/.+$"""
+    this matches """^https://temperaturepass\.ndi-api\.gov\.sg/login/.+$""" || isSafeEntryURL()
 
 /** Returns `true` if the [String] is the actual SafeEntry URL. Please note that the URL from the
  *  QR code is different than the actual URL that user will arrive at. For raw QR code URL,

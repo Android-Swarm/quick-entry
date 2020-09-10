@@ -4,8 +4,8 @@ import android.app.Application
 import android.location.Location
 import android.util.Log
 import android.webkit.WebChromeClient
+import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
-import androidx.lifecycle.Transformations
 import androidx.lifecycle.viewModelScope
 import com.zetzaus.quickentry.database.EntrySpot
 import com.zetzaus.quickentry.database.middleOf
@@ -22,16 +22,10 @@ class WebFragmentViewModel(application: Application) : EntryViewModel(applicatio
     val detectedUrls = mutableSetOf<String>()
 
     private val _progressIndicatorVisibility = MutableLiveData<Boolean>()
-    val progressIndicatorVisibility = Transformations.switchMap(_progressIndicatorVisibility) {
-        MutableLiveData(it)
-    }
+    val progressIndicatorVisibility: LiveData<Boolean> = _progressIndicatorVisibility
 
     fun updateProgressIndicator(newProgress: Int) {
-        if (newProgress == 100) {
-            _progressIndicatorVisibility.postValue(false)
-        } else {
-            _progressIndicatorVisibility.postValue(true)
-        }
+        _progressIndicatorVisibility.value = newProgress != 100
     }
 
     fun saveSpot(url: String, locationName: String, location: Location) = viewModelScope.launch {
