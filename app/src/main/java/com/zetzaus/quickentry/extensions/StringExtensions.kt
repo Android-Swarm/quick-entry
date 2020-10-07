@@ -8,7 +8,12 @@ package com.zetzaus.quickentry.extensions
  */
 infix fun String.matches(pattern: String) = Regex(pattern).matches(this)
 
-/** Returns `true` if the [String] is a raw SafeEntry URL scanned from a QR code. */
+/**
+ *  Returns `true` if the [String] is (I believe) the outermost SafeEntry URL scanned from a QR code.
+ * This URL will then redirect to [https://www.safeentry-qr.gov.sg/login/] and finally
+ * [https://www.safeentry-qr.gov.sg/tenant/] or [https://www.safeentry-qr.gov.sg/tenantList/].
+ *
+ */
 fun String.isSafeEntryCodeURL() =
     this matches """^https://temperaturepass\.ndi-api\.gov\.sg/login/.+$""" || isSafeEntryURL()
 
@@ -18,7 +23,7 @@ fun String.isSafeEntryCodeURL() =
  *
  */
 fun String.isSafeEntryURL() =
-    this matches """^https://www\.safeentry-qr\.gov\.sg/tenant/.+$"""
+    this matches """^https://www\.safeentry-qr\.gov\.sg/(tenant(List)?|login)/.+$"""
 
 /** Returns `true` if the [String] is a SafeEntry checked-in URL or a SafeEntry checked-out URL. */
 fun String.isSafeEntryCompletionURL() =

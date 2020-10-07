@@ -62,17 +62,17 @@ dependencies {
 //    implementation "androidx.camera:camera-lifecycle:$camerax_version"
 //    implementation "androidx.camera:camera-view:1.0.0-alpha14"
 
-    api 'com.otaliastudios:cameraview:2.6.3'
+    api 'com.otaliastudios:cameraview:2.6.4'
 
     // Barcode scanner
-    implementation 'com.google.mlkit:barcode-scanning:16.0.2'
+    implementation 'com.google.mlkit:barcode-scanning:16.0.3'
 
     // Barcode generator
     implementation 'com.google.zxing:core:3.4.0'
     implementation 'com.journeyapps:zxing-android-embedded:3.4.0@aar'
 
     // Coroutine
-    def coroutines_android_version = "1.3.8"
+    def coroutines_android_version = "1.3.9"
     implementation "org.jetbrains.kotlinx:kotlinx-coroutines-core:$coroutines_android_version"
     implementation "org.jetbrains.kotlinx:kotlinx-coroutines-android:$coroutines_android_version"
 
